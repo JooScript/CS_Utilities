@@ -19,8 +19,13 @@ namespace Utilities
             return ErrorMessage.ToString();
         }
 
-        public static string Singularize(string word)
+        public static string? Singularize(string? word)
         {
+            if (string.IsNullOrEmpty(word))
+            {
+                return null;
+            }
+
             Dictionary<string, string> irregularSingulars = new Dictionary<string, string>
         {
             { "children", "child" },
@@ -52,19 +57,12 @@ namespace Utilities
                 return irregularSingulars[word.ToLower()];
             }
 
-            // Handle common singularization rules
             if (word.EndsWith("es", StringComparison.OrdinalIgnoreCase))
             {
-                // Remove "es" for words ending in s, x, z, ch, sh
-                if (word.EndsWith("ses", StringComparison.OrdinalIgnoreCase) ||
-                    word.EndsWith("xes", StringComparison.OrdinalIgnoreCase) ||
-                    word.EndsWith("zes", StringComparison.OrdinalIgnoreCase) ||
-                    word.EndsWith("ches", StringComparison.OrdinalIgnoreCase) ||
-                    word.EndsWith("shes", StringComparison.OrdinalIgnoreCase))
+                if (word.EndsWith("ses", StringComparison.OrdinalIgnoreCase) || word.EndsWith("xes", StringComparison.OrdinalIgnoreCase) || word.EndsWith("zes", StringComparison.OrdinalIgnoreCase) || word.EndsWith("ches", StringComparison.OrdinalIgnoreCase) || word.EndsWith("shes", StringComparison.OrdinalIgnoreCase))
                 {
                     return word.Substring(0, word.Length - 2);
                 }
-                // Remove "es" for words ending in "ies" (e.g., "cities" -> "city")
                 else if (word.EndsWith("ies", StringComparison.OrdinalIgnoreCase))
                 {
                     return word.Substring(0, word.Length - 3) + "y";
@@ -72,21 +70,23 @@ namespace Utilities
             }
             else if (word.EndsWith("s", StringComparison.OrdinalIgnoreCase))
             {
-                // Remove "s" for most words
                 return word.Substring(0, word.Length - 1);
             }
             else if (word.EndsWith("ves", StringComparison.OrdinalIgnoreCase))
             {
-                // Handle words ending in "ves" (e.g., "leaves" -> "leaf")
                 return word.Substring(0, word.Length - 3) + "f";
             }
 
-            // If no rules match, return the word as-is
             return word;
         }
 
-        public static string Pluralize(string word)
+        public static string? Pluralize(string? word)
         {
+            if (string.IsNullOrEmpty(word))
+            {
+                return null;
+            }
+
             var irregularPlurals = new Dictionary<string, string>
         {
             { "child", "children" },
