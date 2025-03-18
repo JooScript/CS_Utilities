@@ -1,0 +1,25 @@
+C:\Users\Yousef\Dropbox\Programming\My Projects\Current Projects\Inventory\Utilties\bin\Debug\net9.0\Utilities.deps.json
+C:\Users\Yousef\Dropbox\Programming\My Projects\Current Projects\Inventory\Utilties\bin\Debug\net9.0\Utilities.dll
+C:\Users\Yousef\Dropbox\Programming\My Projects\Current Projects\Inventory\Utilties\bin\Debug\net9.0\Utilities.pdb
+C:\Users\Yousef\Dropbox\Programming\My Projects\Current Projects\Inventory\Utilties\obj\Debug\net9.0\Utilities.csproj.AssemblyReference.cache
+C:\Users\Yousef\Dropbox\Programming\My Projects\Current Projects\Inventory\Utilties\obj\Debug\net9.0\Utilities.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Yousef\Dropbox\Programming\My Projects\Current Projects\Inventory\Utilties\obj\Debug\net9.0\Utilities.AssemblyInfoInputs.cache
+C:\Users\Yousef\Dropbox\Programming\My Projects\Current Projects\Inventory\Utilties\obj\Debug\net9.0\Utilities.AssemblyInfo.cs
+C:\Users\Yousef\Dropbox\Programming\My Projects\Current Projects\Inventory\Utilties\obj\Debug\net9.0\Utilities.csproj.CoreCompileInputs.cache
+C:\Users\Yousef\Dropbox\Programming\My Projects\Current Projects\Inventory\Utilties\obj\Debug\net9.0\Utilities.dll
+C:\Users\Yousef\Dropbox\Programming\My Projects\Current Projects\Inventory\Utilties\obj\Debug\net9.0\refint\Utilities.dll
+C:\Users\Yousef\Dropbox\Programming\My Projects\Current Projects\Inventory\Utilties\obj\Debug\net9.0\Utilities.pdb
+C:\Users\Yousef\Dropbox\Programming\My Projects\Current Projects\Inventory\Utilties\obj\Debug\net9.0\ref\Utilities.dll
+C:\Users\Yousef\Documents\GitHub\Inventory_System\Utilties\bin\Debug\net9.0\Utilities.deps.json
+C:\Users\Yousef\Documents\GitHub\Inventory_System\Utilties\bin\Debug\net9.0\Utilities.dll
+C:\Users\Yousef\Documents\GitHub\Inventory_System\Utilties\bin\Debug\net9.0\Utilities.pdb
+C:\Users\Yousef\Documents\GitHub\Inventory_System\Utilties\obj\Debug\net9.0\Utilities.csproj.AssemblyReference.cache
+C:\Users\Yousef\Documents\GitHub\Inventory_System\Utilties\obj\Debug\net9.0\Utilities.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Yousef\Documents\GitHub\Inventory_System\Utilties\obj\Debug\net9.0\Utilities.AssemblyInfoInputs.cache
+C:\Users\Yousef\Documents\GitHub\Inventory_System\Utilties\obj\Debug\net9.0\Utilities.AssemblyInfo.cs
+C:\Users\Yousef\Documents\GitHub\Inventory_System\Utilties\obj\Debug\net9.0\Utilities.csproj.CoreCompileInputs.cache
+C:\Users\Yousef\Documents\GitHub\Inventory_System\Utilties\obj\Debug\net9.0\Utilities.sourcelink.json
+C:\Users\Yousef\Documents\GitHub\Inventory_System\Utilties\obj\Debug\net9.0\Utilities.dll
+C:\Users\Yousef\Documents\GitHub\Inventory_System\Utilties\obj\Debug\net9.0\refint\Utilities.dll
+C:\Users\Yousef\Documents\GitHub\Inventory_System\Utilties\obj\Debug\net9.0\Utilities.pdb
+C:\Users\Yousef\Documents\GitHub\Inventory_System\Utilties\obj\Debug\net9.0\ref\Utilities.dll
