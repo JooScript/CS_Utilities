@@ -41,5 +41,10 @@ namespace Utilities
             return !string.IsNullOrWhiteSpace(password) && password.Length >= MinLength && hasUpperCase.IsMatch(password) && hasLowerCase.IsMatch(password) && hasDigit.IsMatch(password) && hasSpecialChar.IsMatch(password);
         }
 
+        public static bool IsVowel(char c)
+        {
+            return "aeiouAEIOU".Contains(c);
+        }
+
     }
 }

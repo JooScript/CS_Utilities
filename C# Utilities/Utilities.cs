@@ -1,8 +1,4 @@
-﻿using System.Data;
-using System.Diagnostics;
-using System.Text;
-
-namespace Utilities
+﻿namespace Utilities
 {
     public class clsUtil
     {
@@ -75,16 +71,6 @@ namespace Utilities
             }
         }
 
-        public static string ExceptionToString(Exception ex)
-        {
-            StringBuilder ErrorMessage = new StringBuilder();
-            ErrorMessage.AppendLine($"[{DateTime.Now}] Error:");
-            ErrorMessage.AppendLine($"Message: {ex.Message}");
-            ErrorMessage.AppendLine($"StackTrace: {ex.StackTrace}");
-            ErrorMessage.AppendLine(new string('-', 50));
-            return ErrorMessage.ToString();
-        }
-
         public static void LogToFile(string ErrorMessage)
         {
             try
@@ -109,31 +95,10 @@ namespace Utilities
             }
         }
 
-        public static void LogToWinEventLog(string logMessage, string AppName, EventLogEntryType Type = EventLogEntryType.Error)
-        {
-            try
-            {
-                if (!EventLog.SourceExists(AppName))
-                {
-                    EventLog.CreateEventSource(AppName, "Application");
-                }
-                EventLog.WriteEntry(AppName, logMessage, Type);
-            }
-            catch (Exception logEx)
-            {
-                ErrorLogger(logEx);
-            }
-        }
-
-        public static void LogErrorToWinEventLog(string logMessage, string AppName)
-        {
-            LogToWinEventLog(logMessage, AppName, EventLogEntryType.Error);
-        }
-
         public static void ErrorLogger(Exception ex)
         {
             clsLogger FileLogger = new clsLogger(LogToFile);
-            FileLogger.Log(ExceptionToString(ex));
+            FileLogger.Log(clsFormat.ExceptionToString(ex));
         }
 
         public static string HashPassword(string password)
@@ -154,30 +119,6 @@ namespace Utilities
             }
 
             return BCrypt.Net.BCrypt.Verify(inputPassword, storedHash);
-        }
-
-        public static void DataTableConsolePrinting(DataTable dataTable)
-        {
-            if (dataTable == null || dataTable.Rows.Count == 0)
-            {
-                Console.WriteLine("No data found.");
-                return;
-            }
-
-            foreach (DataColumn column in dataTable.Columns)
-            {
-                Console.Write($"{column.ColumnName,-30}");
-            }
-            Console.WriteLine();
-
-            foreach (DataRow row in dataTable.Rows)
-            {
-                foreach (var item in row.ItemArray)
-                {
-                    Console.Write($"{item,-30}");
-                }
-                Console.WriteLine();
-            }
         }
 
         public static string GenerateGUID()
@@ -231,11 +172,6 @@ namespace Utilities
 
             sourceFile = destinationFile;
             return true;
-        }
-
-        public static string DateToShort(DateTime Dt1)
-        {
-            return Dt1.ToString("dd/MMM/yyyy");
         }
 
     }
