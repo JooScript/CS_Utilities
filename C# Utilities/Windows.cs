@@ -2,7 +2,7 @@
 
 namespace Utilities
 {
-    public class clsWinUtil
+    public class clsWin
     {
         public static void LogToWinEventLog(string logMessage, string AppName, EventLogEntryType Type = EventLogEntryType.Error)
         {

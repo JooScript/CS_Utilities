@@ -129,7 +129,7 @@ namespace Utilities
                 return word + "es";
             }
             else if (word.EndsWith("y", StringComparison.OrdinalIgnoreCase) &&
-                        !clsValidatoin.IsVowel(word[word.Length - 2]))
+                        !clsValidate.IsVowel(word[word.Length - 2]))
             {
                 return word.Substring(0, word.Length - 1) + "ies";
             }

@@ -2,7 +2,7 @@
 
 namespace Utilities
 {
-    public class clsConsoleUtil
+    public class clsConsole
     {
         public static void DataTableConsolePrinting(DataTable dataTable)
         {

@@ -2,7 +2,7 @@
 
 namespace Utilities
 {
-    public class clsValidatoin
+    public class clsValidate
     {
         public static bool ValidateEmail(string emailAddress)
         {
