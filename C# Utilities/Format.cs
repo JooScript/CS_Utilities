@@ -178,6 +178,22 @@ namespace Utilities
             return result.ToString();
         }
 
+        public static List<string> FormatNumbers(List<int> numbers)
+        {
+            if (numbers == null || numbers.Count == 0)
+            {
+                return new List<string>();
+            }
+
+            int maxNumber = numbers.Max();
+
+            int digitCount = maxNumber.ToString().Length;
+
+            List<string> formattedNumbers = numbers.Select(num => num.ToString().PadLeft(digitCount, '0')).ToList();
+
+            return formattedNumbers;
+        }
+
         #region NumberSystemFormat
         public static string FormatBinary(string binary, string separator = " ")
         {

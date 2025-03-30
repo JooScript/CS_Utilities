@@ -1,6 +1,4 @@
-﻿using System;
-using System.Text;
-using System.Linq;
+﻿using System.Text;
 using Utilities;
 
 public static class clsNumberSystemConverter

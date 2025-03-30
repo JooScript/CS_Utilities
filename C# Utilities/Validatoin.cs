@@ -46,6 +46,8 @@ namespace Utilities
             return "aeiouAEIOU".Contains(c);
         }
 
+        #region NumberSystemValidation
+
         public static void ValidateBinary(string input)
         {
             if (string.IsNullOrWhiteSpace(input))
@@ -80,6 +82,7 @@ namespace Utilities
                 throw new ArgumentException("Input contains invalid hexadecimal characters");
         }
 
+        #endregion
 
     }
 }
