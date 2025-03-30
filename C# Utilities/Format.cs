@@ -178,5 +178,95 @@ namespace Utilities
             return result.ToString();
         }
 
+        #region NumberSystemFormat
+        public static string FormatBinary(string binary, string separator = " ")
+        {
+            // Remove any existing whitespace and validate
+            string clean = binary.Replace(" ", "");
+            if (!clean.All(c => c == '0' || c == '1'))
+                throw new ArgumentException("Invalid binary string");
+
+            // Pad with leading zeros to make length a multiple of 4
+            int padding = (4 - (clean.Length % 4)) % 4;
+            clean = clean.PadLeft(clean.Length + padding, '0');
+
+            // Process in 4-bit chunks from right to left
+            StringBuilder result = new StringBuilder();
+            for (int i = clean.Length; i > 0; i -= 4)
+            {
+                int length = Math.Min(4, i);
+                string chunk = clean.Substring(Math.Max(0, i - length), length);
+                if (result.Length > 0) result.Insert(0, separator);
+                result.Insert(0, chunk);
+            }
+
+            return result.ToString();
+        }
+
+        public static string FormatHexadecimal(string hex, string separator = " ")
+        {
+            // Remove any existing whitespace and validate
+            string clean = hex.Replace(" ", "").ToUpper();
+            if (!clean.All(c => (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F')))
+                throw new ArgumentException("Invalid hexadecimal string");
+
+            // Process in 4-character chunks from right to left
+            StringBuilder result = new StringBuilder();
+            for (int i = clean.Length; i > 0; i -= 4)
+            {
+                int length = Math.Min(4, i);
+                string chunk = clean.Substring(Math.Max(0, i - length), length);
+                if (result.Length > 0) result.Insert(0, separator);
+                result.Insert(0, chunk);
+            }
+
+            return result.ToString();
+        }
+
+        public static string FormatOctal(string octal, string separator = " ")
+        {
+            // Remove any existing whitespace and validate
+            string clean = octal.Replace(" ", "");
+            if (!clean.All(c => c >= '0' && c <= '7'))
+                throw new ArgumentException("Invalid octal string");
+
+            // Process in 3-character chunks from right to left
+            StringBuilder result = new StringBuilder();
+            for (int i = clean.Length; i > 0; i -= 3)
+            {
+                int length = Math.Min(3, i);
+                string chunk = clean.Substring(Math.Max(0, i - length), length);
+                if (result.Length > 0) result.Insert(0, separator);
+                result.Insert(0, chunk);
+            }
+
+            return result.ToString();
+        }
+
+        public static string FormatDecimal(string dec, string separator = ",")
+        {
+            // Remove any existing formatting and validate
+            string clean = dec.Replace(",", "").Replace(" ", "");
+            if (!clean.All(char.IsDigit))
+                throw new ArgumentException("Invalid decimal string");
+
+            // Process in 3-digit chunks from right to left
+            StringBuilder result = new StringBuilder();
+            for (int i = clean.Length; i > 0; i -= 3)
+            {
+                int length = Math.Min(3, i);
+                string chunk = clean.Substring(Math.Max(0, i - length), length);
+                if (result.Length > 0) result.Insert(0, separator);
+                result.Insert(0, chunk);
+            }
+
+            return result.ToString();
+        }
+
+        public static string FormatBinary(int number) => FormatBinary(Convert.ToString(number, 2));
+        public static string FormatHexadecimal(int number) => FormatHexadecimal(number.ToString("X"));
+        public static string FormatOctal(int number) => FormatOctal(Convert.ToString(number, 8));
+        public static string FormatDecimal(int number) => FormatDecimal(number.ToString());
+        #endregion
     }
 }
