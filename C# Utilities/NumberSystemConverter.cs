@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Linq;
+using Utilities;
 
 public static class clsNumberSystemConverter
 {
@@ -13,7 +14,7 @@ public static class clsNumberSystemConverter
     /// <returns>Decimal integer value</returns>
     public static int BinaryToDecimal(string binary)
     {
-        ValidateBinary(binary);
+        clsValidate.ValidateBinary(binary);
 
         bool isNegative = binary.StartsWith("-");
         string cleanBinary = isNegative ? binary.Substring(1) : binary;
@@ -31,7 +32,7 @@ public static class clsNumberSystemConverter
     /// </summary>
     public static string BinaryToHexadecimal(string binary)
     {
-        ValidateBinary(binary);
+        clsValidate.ValidateBinary(binary);
 
         // Pad with leading zeros to make length a multiple of 4
         int padding = (4 - (binary.Length % 4)) % 4;
@@ -54,7 +55,7 @@ public static class clsNumberSystemConverter
     /// </summary>
     public static string BinaryToOctal(string binary)
     {
-        ValidateBinary(binary);
+        clsValidate.ValidateBinary(binary);
 
         // Pad with leading zeros to make length a multiple of 3
         int padding = (3 - (binary.Length % 3)) % 3;
@@ -144,7 +145,7 @@ public static class clsNumberSystemConverter
     /// </summary>
     public static int HexadecimalToDecimal(string hex)
     {
-        ValidateHexadecimal(hex);
+        clsValidate.ValidateHexadecimal(hex);
         return Convert.ToInt32(hex, 16);
     }
 
@@ -153,7 +154,7 @@ public static class clsNumberSystemConverter
     /// </summary>
     public static string HexadecimalToBinary(string hex)
     {
-        ValidateHexadecimal(hex);
+        clsValidate.ValidateHexadecimal(hex);
         return DecimalToBinary(HexadecimalToDecimal(hex));
     }
 
@@ -162,7 +163,7 @@ public static class clsNumberSystemConverter
     /// </summary>
     public static string HexadecimalToOctal(string hex)
     {
-        ValidateHexadecimal(hex);
+        clsValidate.ValidateHexadecimal(hex);
         return DecimalToOctal(HexadecimalToDecimal(hex));
     }
 
@@ -175,7 +176,7 @@ public static class clsNumberSystemConverter
     /// </summary>
     public static int OctalToDecimal(string octal)
     {
-        ValidateOctal(octal);
+        clsValidate.ValidateOctal(octal);
         return Convert.ToInt32(octal, 8);
     }
 
@@ -184,7 +185,7 @@ public static class clsNumberSystemConverter
     /// </summary>
     public static string OctalToBinary(string octal)
     {
-        ValidateOctal(octal);
+        clsValidate.ValidateOctal(octal);
         return DecimalToBinary(OctalToDecimal(octal));
     }
 
@@ -193,46 +194,8 @@ public static class clsNumberSystemConverter
     /// </summary>
     public static string OctalToHexadecimal(string octal)
     {
-        ValidateOctal(octal);
+        clsValidate.ValidateOctal(octal);
         return DecimalToHexadecimal(OctalToDecimal(octal));
-    }
-
-    #endregion
-
-    #region Validation Helpers
-
-    private static void ValidateBinary(string input)
-    {
-        if (string.IsNullOrWhiteSpace(input))
-            throw new ArgumentException("Input cannot be null or empty");
-
-        string cleanInput = input.StartsWith("-") ? input.Substring(1) : input;
-
-        if (cleanInput.Any(c => c != '0' && c != '1'))
-            throw new ArgumentException("Input contains invalid binary characters");
-    }
-
-    private static void ValidateOctal(string input)
-    {
-        if (string.IsNullOrWhiteSpace(input))
-            throw new ArgumentException("Input cannot be null or empty");
-
-        string cleanInput = input.StartsWith("-") ? input.Substring(1) : input;
-
-        if (cleanInput.Any(c => c < '0' || c > '7'))
-            throw new ArgumentException("Input contains invalid octal characters");
-    }
-
-    private static void ValidateHexadecimal(string input)
-    {
-        if (string.IsNullOrWhiteSpace(input))
-            throw new ArgumentException("Input cannot be null or empty");
-
-        string cleanInput = input.StartsWith("-") ? input.Substring(1) : input;
-        cleanInput = cleanInput.ToUpper();
-
-        if (cleanInput.Any(c => !(char.IsDigit(c) || (c >= 'A' && c <= 'F'))))
-            throw new ArgumentException("Input contains invalid hexadecimal characters");
     }
 
     #endregion

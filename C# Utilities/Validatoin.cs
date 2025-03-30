@@ -46,5 +46,40 @@ namespace Utilities
             return "aeiouAEIOU".Contains(c);
         }
 
+        public static void ValidateBinary(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                throw new ArgumentException("Input cannot be null or empty");
+
+            string cleanInput = input.StartsWith("-") ? input.Substring(1) : input;
+
+            if (cleanInput.Any(c => c != '0' && c != '1'))
+                throw new ArgumentException("Input contains invalid binary characters");
+        }
+
+        public static void ValidateOctal(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                throw new ArgumentException("Input cannot be null or empty");
+
+            string cleanInput = input.StartsWith("-") ? input.Substring(1) : input;
+
+            if (cleanInput.Any(c => c < '0' || c > '7'))
+                throw new ArgumentException("Input contains invalid octal characters");
+        }
+
+        public static void ValidateHexadecimal(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                throw new ArgumentException("Input cannot be null or empty");
+
+            string cleanInput = input.StartsWith("-") ? input.Substring(1) : input;
+            cleanInput = cleanInput.ToUpper();
+
+            if (cleanInput.Any(c => !(char.IsDigit(c) || (c >= 'A' && c <= 'F'))))
+                throw new ArgumentException("Input contains invalid hexadecimal characters");
+        }
+
+
     }
 }
