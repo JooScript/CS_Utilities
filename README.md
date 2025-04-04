@@ -17,7 +17,7 @@ The **Utilities** repository provides a collection of helper classes designed to
 ## Installation
 Clone the repository using the following command:
 ```sh
-git clone https://github.com/yourusername/Utilities.git
+git clone https://github.com/Yousef-Refat/Utilities.git
 ```
 Include the required files in your .NET project.
 
@@ -33,6 +33,3 @@ Contributions are welcome! If you find a bug or have an enhancement suggestion, 
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Contact
-For any questions or support, contact [yourname@domain.com] or open an issue on GitHub.
