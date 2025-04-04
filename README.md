@@ -17,7 +17,7 @@ The **Utilities** repository provides a collection of helper classes designed to
 ## Installation
 Clone the repository using the following command:
 ```sh
-git clone https://github.com/Yousef-Refat/Utilities.git
+git clone https://github.com/Yousef-Refat/CS_Utilities.git
 ```
 Include the required files in your .NET project.
 
