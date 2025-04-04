@@ -195,6 +195,7 @@ namespace Utilities
         }
 
         #region NumberSystemFormat
+
         public static string FormatBinary(string binary, string separator = " ")
         {
             // Remove any existing whitespace and validate
@@ -283,6 +284,7 @@ namespace Utilities
         public static string FormatHexadecimal(int number) => FormatHexadecimal(number.ToString("X"));
         public static string FormatOctal(int number) => FormatOctal(Convert.ToString(number, 8));
         public static string FormatDecimal(int number) => FormatDecimal(number.ToString());
+
         #endregion
     }
 }
