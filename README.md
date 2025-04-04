@@ -1,4 +1,4 @@
-# Utilities Repository
+# C# Utilities Repository
 
 ## Overview
 The **Utilities** repository provides a collection of helper classes designed to simplify and enhance various development tasks in .NET projects. This repository includes essential functionalities such as logging, file management, data formatting, security, validation, and more.
