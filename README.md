@@ -22,9 +22,9 @@ git clone https://github.com/Yousef-Refat/Utilities.git
 Include the required files in your .NET project.
 
 ## Usage
-Each class provides static methods that can be directly used in your application. Below is a basic example of how to use the **Logger** class:
+Each class provides static methods that can be directly used in your application. Below is a basic example of how to use the **clsUtil** class:
 ```csharp
-Logger.Log("Application started", LogLevel.Info);
+    clsUtil.CreateFolderIfDoesNotExist("C:\\Users\\Yousef\\Documents\\New Folder");
 ```
 For more details on each utility, refer to the inline documentation within the respective files.
 
