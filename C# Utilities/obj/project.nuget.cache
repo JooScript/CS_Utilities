@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "o3iAR42Cd4g=",
+  "dgSpecHash": "gsMos7Or0J4=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Yousef\\Documents\\GitHub\\Utilities\\C# Utilities\\Utilities.csproj",
+  "projectFilePath": "C:\\Users\\Yousef\\Documents\\GitHub\\CS_Utilities\\C# Utilities\\Utilities.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Yousef\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\Yousef\\.nuget\\packages\\system.diagnostics.eventlog\\9.0.2\\system.diagnostics.eventlog.9.0.2.nupkg.sha512"
