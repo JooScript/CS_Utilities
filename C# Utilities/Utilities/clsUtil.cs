@@ -9,6 +9,7 @@
 
         public static void ErrorLogger(Exception ex)
         {
+            clsFile.LogLevel = clsFile.enLogLevel.Error;
             clsLogger FileLogger = new clsLogger(clsFile.LogToFile);
             FileLogger.Log(clsFormat.ExceptionToString(ex));
         }

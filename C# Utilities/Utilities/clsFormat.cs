@@ -352,6 +352,11 @@ namespace Utilities
             return formattedNumbers;
         }
 
+        public static string FormatNumbers(int numberToFormat, int maxNumber)
+        {
+            return maxNumber <= 0 ? string.Empty : numberToFormat.ToString().PadLeft(maxNumber.ToString().Length, '0');
+        }
+
         public static string FormatId(string? input)
         {
             if (input == null)

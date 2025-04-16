@@ -7,21 +7,44 @@ namespace Utilities
 {
     public static class clsFile
     {
-
         #region Logging
+
+        #region Locks
+
+        private static readonly ConcurrentDictionary<string, SemaphoreSlim> _fileLocks = new(); //Per File Lock
+        private static readonly object _cleanupLock = new();
+        private static readonly object _logDirLock = new object();
+        private static readonly object _logLevelLock = new object();
+
+        #endregion
+
         public enum enLogLevel
         {
             Info = 0,
             Warn = 1,
             Error = 2,
         }
+        public static enLogLevel LogLevel
+        {
+            get
+            {
+                lock (_logLevelLock)
+                {
+                    return _LogLevel;
+                }
+            }
+            set
+            {
+                lock (_logLevelLock)
+                {
+                    _LogLevel = value;
+                }
+            }
+        }
 
-        private static readonly ConcurrentDictionary<string, SemaphoreSlim> _fileLocks = new(); //Per File Lock
-        private static readonly object _cleanupLock = new();
-        private static readonly object _logDirLock = new object();
-        private const int MaxLogAgeDays = 7;
-        private static string _logDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Logs");
         private static enLogLevel _LogLevel = enLogLevel.Info;
+
+        private static string _logDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Logs");
 
         /// <summary>
         /// Gets or sets the log directory path. Automatically creates the directory when set.
@@ -59,27 +82,13 @@ namespace Utilities
             }
         }
 
-        private static string _LogLevelStr()
-        {
-            if (_LogLevel == enLogLevel.Info)
-            {
-                return "INFO";
-            }
-            else if (_LogLevel == enLogLevel.Warn)
-            {
-                return "WARN";
-            }
-            else
-            {
-                return "ERROR";
-            }
-        }
+        private const int _MaxLogAgeDays = 7;
 
         private static void _CleanOldLogs()
         {
             try
             {
-                var cutoffDate = DateTime.UtcNow.AddDays(-MaxLogAgeDays);
+                var cutoffDate = DateTime.UtcNow.AddDays(-_MaxLogAgeDays);
                 var logFiles = Directory.GetFiles(_logDirectory, "AppLog_*.log");
 
                 foreach (var file in logFiles)
@@ -113,7 +122,7 @@ namespace Utilities
 
                 clsUtil.CreateFolderIfDoesNotExist(_logDirectory);
 
-                string logEntry = $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss.fff}] [{_LogLevelStr()}] {message}{Environment.NewLine}";
+                string logEntry = $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss.fff}] [{_LogLevel.ToString()}] {message}{Environment.NewLine}";
                 var fileLock = _fileLocks.GetOrAdd(logFilePath, _ => new SemaphoreSlim(1, 1));
 
                 try
@@ -163,7 +172,7 @@ namespace Utilities
                 var logEntry = new
                 {
                     Timestamp = DateTime.Now,
-                    Level = _LogLevelStr(),
+                    Level = _LogLevel.ToString(),
                     Message = message,
                     Source = Environment.MachineName
                 };
@@ -255,7 +264,7 @@ namespace Utilities
 
         #endregion
 
-        public static async Task<bool> StoreToFileAsync(string Content,string sourceFile = "File.txt", string DestinationFolder = null,  bool Replace = true)
+        public static async Task<bool> StoreToFileAsync(string Content, string sourceFile = "File.txt", string DestinationFolder = null, bool Replace = true)
         {
             if (string.IsNullOrEmpty(DestinationFolder))
             {
@@ -277,7 +286,6 @@ namespace Utilities
                 else
                 {
                     await File.AppendAllTextAsync(LogFilePath, Content);
-
                 }
 
                 return true;
@@ -289,7 +297,7 @@ namespace Utilities
             }
         }
 
-        public static bool StoreToFile(string Content,string sourceFile = "File.txt", string DestinationFolder = null,  bool Replace = true)
+        public static bool StoreToFile(string Content, string sourceFile = "File.txt", string DestinationFolder = null, bool Replace = true)
         {
             return StoreToFileAsync(Content, sourceFile, DestinationFolder, Replace).GetAwaiter().GetResult();
         }

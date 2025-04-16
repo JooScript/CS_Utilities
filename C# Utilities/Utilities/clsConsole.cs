@@ -30,9 +30,15 @@ namespace Utilities
 
         public static void ListConsolePrinting<T>(List<T> list)
         {
-            foreach (T item in list)
+            if (list == null || list.Count == 0)
             {
-                Console.WriteLine(item);
+                Console.WriteLine("The list is empty or null.");
+                return;
+            }
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                Console.WriteLine($"[{clsFormat.FormatNumbers(i + 1, list.Count)}] {list[i]}");
             }
         }
 
