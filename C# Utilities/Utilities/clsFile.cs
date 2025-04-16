@@ -255,8 +255,13 @@ namespace Utilities
 
         #endregion
 
-        public static async Task<bool> StoreToFileAsync(string Content, string DestinationFolder, string sourceFile, bool Replace = true)
+        public static async Task<bool> StoreToFileAsync(string Content,string sourceFile = "File.txt", string DestinationFolder = null,  bool Replace = true)
         {
+            if (string.IsNullOrEmpty(DestinationFolder))
+            {
+                DestinationFolder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            }
+
             if (!clsUtil.CreateFolderIfDoesNotExist(DestinationFolder))
             {
                 return false;
@@ -284,9 +289,9 @@ namespace Utilities
             }
         }
 
-        public static bool StoreToFile(string Content, string DestinationFolder, string sourceFile, bool Replace = true)
+        public static bool StoreToFile(string Content,string sourceFile = "File.txt", string DestinationFolder = null,  bool Replace = true)
         {
-            return StoreToFileAsync(Content, DestinationFolder, sourceFile, Replace).GetAwaiter().GetResult();
+            return StoreToFileAsync(Content, sourceFile, DestinationFolder, Replace).GetAwaiter().GetResult();
         }
 
         public static string ReplaceFileNameWithGUID(string sourceFile)

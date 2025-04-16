@@ -2,13 +2,75 @@
 
 namespace Utilities
 {
-    public class clsValidate
+    public static class clsValidate
     {
-        public static bool ValidateEmail(string emailAddress)
+        public static bool ValidateDestinationFolder(string folderPath, bool createIfMissing = false)
         {
+            if (string.IsNullOrWhiteSpace(folderPath))
+            {
+                Console.WriteLine("Folder path is null or empty.");
+                return false;
+            }
+
+            try
+            {
+                string fullPath = Path.GetFullPath(folderPath);
+
+                if (!Directory.Exists(fullPath))
+                {
+                    if (createIfMissing)
+                    {
+                        clsUtil.CreateFolderIfDoesNotExist(fullPath);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+                if (!_HasWritePermission(fullPath))
+                {
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                clsUtil.ErrorLogger(ex);
+                return false;
+            }
+        }
+
+        private static bool _HasWritePermission(string folderPath)
+        {
+            try
+            {
+                string testFile = Path.Combine(folderPath, Path.GetRandomFileName());
+                using (FileStream fs = File.Create(testFile, 1, FileOptions.DeleteOnClose))
+                {
+                    // If file creation succeeds, write permission exists
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Validates an email address using a regular expression.
+        /// </summary>
+        public static bool ValidateEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return false;
+            }
+
             var pattern = @"^[a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$";
-            var regex = new Regex(pattern);
-            return regex.IsMatch(emailAddress);
+            return Regex.IsMatch(email, pattern);
         }
 
         public static bool ValidateInteger(string Number)
@@ -30,6 +92,9 @@ namespace Utilities
             return (ValidateInteger(Number) || ValidateFloat(Number));
         }
 
+        /// <summary>
+        /// Validates password strength (min 8 characters, 1 uppercase, 1 lowercase, 1 digit, 1 special character).
+        /// </summary>
         public static bool ValidateStrongPassword(string password)
         {
             const int MinLength = 8;
@@ -41,9 +106,36 @@ namespace Utilities
             return !string.IsNullOrWhiteSpace(password) && password.Length >= MinLength && hasUpperCase.IsMatch(password) && hasLowerCase.IsMatch(password) && hasDigit.IsMatch(password) && hasSpecialChar.IsMatch(password);
         }
 
+        /// <summary>
+        /// Validates a phone number (basic international pattern).
+        /// </summary>
+        public static bool ValidatePhoneNumber(string phoneNumber)
+        {
+            if (string.IsNullOrWhiteSpace(phoneNumber))
+            {
+                return false;
+            }
+
+            var pattern = @"^\+?[1-9]\d{1,14}$"; // E.164 format
+            return Regex.IsMatch(phoneNumber, pattern);
+        }
+
         public static bool IsVowel(char c)
         {
             return "aeiouAEIOU".Contains(c);
+        }
+
+        /// <summary>
+        /// Validates that a date is within a specific range.
+        /// </summary>
+        public static bool IsValidDateRange(DateTime date, DateTime minDate, DateTime maxDate)
+        {
+            return !(date < minDate || date > maxDate);
+        }
+
+        public static bool IsValidDateRange(DateTime start, DateTime end)
+        {
+            return start <= end;
         }
 
         #region NumberSystemValidation
