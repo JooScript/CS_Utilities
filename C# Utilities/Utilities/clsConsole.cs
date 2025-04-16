@@ -42,5 +42,14 @@ namespace Utilities
             }
         }
 
+        public static void PrintColoredMessage(string message, ConsoleColor color)
+        {
+            Console.BackgroundColor = color;
+            Console.WriteLine();
+            Console.WriteLine(message);
+            Console.WriteLine();
+            Console.ResetColor();
+        }
+
     }
 }
