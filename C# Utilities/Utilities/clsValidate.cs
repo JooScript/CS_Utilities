@@ -4,7 +4,44 @@ namespace Utilities
 {
     public static class clsValidate
     {
-        public static bool ValidateDestinationFolder(string folderPath, bool createIfMissing = false)
+        /// <summary>
+        /// Validates an age value with optional range constraints
+        /// </summary>
+        /// <param name="age">The age to validate</param>
+        /// <param name="minAge">Minimum allowed age (default 1)</param>
+        /// <param name="maxAge">Maximum allowed age (default 150)</param>
+        /// <returns>
+        /// A tuple where:
+        /// - A boolean indicating if the age is valid
+        /// </returns>
+        public static bool IsValidAge(int age, int minAge = 1, int maxAge = 150)
+        {
+            return !(age < minAge || age > maxAge);
+        }
+
+        /// <summary>
+        /// Validates a birth date and calculates age.
+        /// </summary>
+        /// <param name="birthDate">Date of birth to validate</param>
+        /// <param name="minAge">Minimum allowed age (default 1)</param>
+        /// <param name="maxAge">Maximum allowed age (default 150)</param>
+        /// <returns>
+        /// A boolean indicating if the age is within the allowed range.
+        /// </returns>
+        public static bool IsValidBirthDate(DateTime birthDate, int minAge = 1, int maxAge = 150)
+        {
+            DateTime today = DateTime.Today;
+            int age = today.Year - birthDate.Year;
+
+            if (birthDate.Date > today.AddYears(-age))
+            {
+                age--;
+            }
+
+            return age >= minAge && age <= maxAge;
+        }
+
+        public static bool IsValidDestinationFolder(string folderPath, bool createIfMissing = false)
         {
             if (string.IsNullOrWhiteSpace(folderPath))
             {
@@ -62,7 +99,7 @@ namespace Utilities
         /// <summary>
         /// Validates an email address using a regular expression.
         /// </summary>
-        public static bool ValidateEmail(string email)
+        public static bool IsValidEmail(string email)
         {
             if (string.IsNullOrWhiteSpace(email))
             {
@@ -73,14 +110,14 @@ namespace Utilities
             return Regex.IsMatch(email, pattern);
         }
 
-        public static bool ValidateInteger(string Number)
+        public static bool IsValidInteger(string Number)
         {
             var pattern = @"^[0-9]*$";
             var regex = new Regex(pattern);
             return regex.IsMatch(Number);
         }
 
-        public static bool ValidateFloat(string Number)
+        public static bool IsValidFloat(string Number)
         {
             var pattern = @"^[0-9]*(?:\.[0-9]*)?$";
             var regex = new Regex(pattern);
@@ -89,13 +126,13 @@ namespace Utilities
 
         public static bool IsNumber(string Number)
         {
-            return (ValidateInteger(Number) || ValidateFloat(Number));
+            return (IsValidInteger(Number) || IsValidFloat(Number));
         }
 
         /// <summary>
         /// Validates password strength (min 8 characters, 1 uppercase, 1 lowercase, 1 digit, 1 special character).
         /// </summary>
-        public static bool ValidateStrongPassword(string password)
+        public static bool IsValidStrongPassword(string password)
         {
             const int MinLength = 8;
             Regex hasUpperCase = new Regex(@"[A-Z]");
@@ -109,7 +146,7 @@ namespace Utilities
         /// <summary>
         /// Validates a phone number (basic international pattern).
         /// </summary>
-        public static bool ValidatePhoneNumber(string phoneNumber)
+        public static bool IsValidPhoneNumber(string phoneNumber)
         {
             if (string.IsNullOrWhiteSpace(phoneNumber))
             {
