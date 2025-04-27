@@ -1,4 +1,6 @@
 ﻿using System.Text;
+using Humanizer;
+
 
 namespace Utilities
 {
@@ -21,283 +23,56 @@ namespace Utilities
 
         public static string? Singularize(string? word)
         {
-            if (string.IsNullOrEmpty(word))
+            if (string.IsNullOrWhiteSpace(word))
             {
                 return null;
             }
 
-            if (IsSingle(word))
-            {
-                return word;
-            }
-
-            Dictionary<string, string> irregularSingulars = new Dictionary<string, string>
-        {
-            { "children", "child" },
-            { "feet", "foot" },
-            { "teeth", "tooth" },
-            { "mice", "mouse" },
-            { "people", "person" },
-            { "geese", "goose" },
-            { "men", "man" },
-            { "women", "woman" },
-            { "leaves", "leaf" },
-            { "knives", "knife" },
-            { "lives", "life" },
-            { "elves", "elf" },
-            { "loaves", "loaf" },
-            { "potatoes", "potato" },
-            { "tomatoes", "tomato" },
-            { "cacti", "cactus" },
-            { "foci", "focus" },
-            { "fungi", "fungus" },
-            { "analyses", "analysis" },
-            { "crises", "crisis" },
-            { "phenomena", "phenomenon" },
-            { "criteria", "criterion" }
-        };
-
-            if (irregularSingulars.ContainsKey(word.ToLower()))
-            {
-                return irregularSingulars[word.ToLower()];
-            }
-
-            if (word.EndsWith("es", StringComparison.OrdinalIgnoreCase))
-            {
-                if (word.EndsWith("ses", StringComparison.OrdinalIgnoreCase) || word.EndsWith("xes", StringComparison.OrdinalIgnoreCase) || word.EndsWith("zes", StringComparison.OrdinalIgnoreCase) || word.EndsWith("ches", StringComparison.OrdinalIgnoreCase) || word.EndsWith("shes", StringComparison.OrdinalIgnoreCase))
-                {
-                    return word.Substring(0, word.Length - 2);
-                }
-                else if (word.EndsWith("ies", StringComparison.OrdinalIgnoreCase))
-                {
-                    return word.Substring(0, word.Length - 3) + "y";
-                }
-            }
-            else if (word.EndsWith("s", StringComparison.OrdinalIgnoreCase))
-            {
-                return word.Substring(0, word.Length - 1);
-            }
-            else if (word.EndsWith("ves", StringComparison.OrdinalIgnoreCase))
-            {
-                return word.Substring(0, word.Length - 3) + "f";
-            }
-
-            return word;
-        }
-
-        public static bool IsSingle(string? word)
-        {
-            if (string.IsNullOrEmpty(word))
-            {
-                return false;
-            }
-
-            // List of words that are the same in singular and plural
             var sameSingularPlural = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         "series", "species", "deer", "sheep", "fish", "aircraft",
         "offspring", "moose", "swine", "trout", "salmon"
     };
 
-            // Check if word is same in both forms
             if (sameSingularPlural.Contains(word))
-            {
-                return true;
-            }
-
-            // Check irregular singulars (reverse of your irregular plurals)
-            var irregularPlurals = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    {
-        "child", "foot", "tooth", "mouse", "person", "goose",
-        "man", "woman", "leaf", "knife", "life", "elf", "loaf",
-        "potato", "tomato", "cactus", "focus", "fungus",
-        "analysis", "crisis", "phenomenon", "criterion"
-    };
-
-            if (irregularPlurals.Contains(word))
-            {
-                return true;
-            }
-
-            // Check regular singular patterns (opposite of plural patterns)
-            if (word.EndsWith("s", StringComparison.OrdinalIgnoreCase) ||
-                word.EndsWith("x", StringComparison.OrdinalIgnoreCase) ||
-                word.EndsWith("z", StringComparison.OrdinalIgnoreCase) ||
-                word.EndsWith("ch", StringComparison.OrdinalIgnoreCase) ||
-                word.EndsWith("sh", StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-
-            if (word.EndsWith("y", StringComparison.OrdinalIgnoreCase) &&
-                word.Length > 1 &&
-                !clsValidate.IsVowel(word[word.Length - 2]))
-            {
-                return false;
-            }
-
-            if (word.EndsWith("f", StringComparison.OrdinalIgnoreCase) ||
-                word.EndsWith("fe", StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-
-            // If none of the above, it's likely singular
-            return true;
-        }
-
-        public static string? Pluralize(string? word)
-        {
-            if (string.IsNullOrEmpty(word))
-            {
-                return null;
-            }
-
-            if (IsPlural(word))
             {
                 return word;
             }
 
-            var irregularPlurals = new Dictionary<string, string>
-        {
-            { "child", "children" },
-            { "foot", "feet" },
-            { "tooth", "teeth" },
-            { "mouse", "mice" },
-            { "person", "people" },
-            { "goose", "geese" },
-            { "man", "men" },
-            { "woman", "women" },
-            { "leaf", "leaves" },
-            { "knife", "knives" },
-            { "life", "lives" },
-            { "elf", "elves" },
-            { "loaf", "loaves" },
-            { "potato", "potatoes" },
-            { "tomato", "tomatoes" },
-            { "cactus", "cacti" },
-            { "focus", "foci" },
-            { "fungus", "fungi" },
-            { "analysis", "analyses" },
-            { "crisis", "crises" },
-            { "phenomenon", "phenomena" },
-            { "criterion", "criteria" }
-        };
-
-            // Check if the word is in the irregular plurals dictionary
-            if (irregularPlurals.ContainsKey(word.ToLower()))
+            if (clsValidate.IsSingle(word))
             {
-                return irregularPlurals[word.ToLower()];
+                return word;
             }
 
-            // Handle common pluralization rules
-            if (word.EndsWith("s", StringComparison.OrdinalIgnoreCase) ||
-                word.EndsWith("x", StringComparison.OrdinalIgnoreCase) ||
-                word.EndsWith("z", StringComparison.OrdinalIgnoreCase) ||
-                word.EndsWith("ch", StringComparison.OrdinalIgnoreCase) ||
-                word.EndsWith("sh", StringComparison.OrdinalIgnoreCase))
-            {
-                return word + "es";
-            }
-            else if (word.EndsWith("y", StringComparison.OrdinalIgnoreCase) &&
-                        !clsValidate.IsVowel(word[word.Length - 2]))
-            {
-                return word.Substring(0, word.Length - 1) + "ies";
-            }
-            else if (word.EndsWith("f", StringComparison.OrdinalIgnoreCase))
-            {
-                return word.Substring(0, word.Length - 1) + "ves";
-            }
-            else if (word.EndsWith("fe", StringComparison.OrdinalIgnoreCase))
-            {
-                return word.Substring(0, word.Length - 2) + "ves";
-            }
-            else
-            {
-                return word + "s";
-            }
+            return word.Singularize(false);
         }
 
-        public static bool IsPlural(string? word)
+        public static string? Pluralize(string? word)
         {
-            if (string.IsNullOrEmpty(word))
+            if (string.IsNullOrWhiteSpace(word))
             {
-                return false;
+                return null;
             }
 
-            var irregularPlurals = new Dictionary<string, string>
+            // Words that are same in singular and plural form
+            var sameSingularPlural = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
-        { "children", "child" },
-        { "feet", "foot" },
-        { "teeth", "tooth" },
-        { "mice", "mouse" },
-        { "people", "person" },
-        { "geese", "goose" },
-        { "men", "man" },
-        { "women", "woman" },
-        { "leaves", "leaf" },
-        { "knives", "knife" },
-        { "lives", "life" },
-        { "elves", "elf" },
-        { "loaves", "loaf" },
-        { "potatoes", "potato" },
-        { "tomatoes", "tomato" },
-        { "cacti", "cactus" },
-        { "foci", "focus" },
-        { "fungi", "fungus" },
-        { "analyses", "analysis" },
-        { "crises", "crisis" },
-        { "phenomena", "phenomenon" },
-        { "criteria", "criterion" }
+        "series", "species", "deer", "sheep", "fish", "aircraft",
+        "offspring", "moose", "swine", "trout", "salmon"
     };
 
-            // Check if word is an irregular plural
-            if (irregularPlurals.ContainsKey(word.ToLower()))
+            if (sameSingularPlural.Contains(word))
             {
-                return true;
+                return word;
             }
 
-            // Check regular plural endings
-            if (word.EndsWith("es", StringComparison.OrdinalIgnoreCase))
+            // If already plural, return as is
+            if (clsValidate.IsPlural(word))
             {
-                // Check for words ending with s, x, z, ch, sh (which add "es")
-                var stem = word.Substring(0, word.Length - 2);
-                if (stem.EndsWith("s", StringComparison.OrdinalIgnoreCase) ||
-                    stem.EndsWith("x", StringComparison.OrdinalIgnoreCase) ||
-                    stem.EndsWith("z", StringComparison.OrdinalIgnoreCase) ||
-                    stem.EndsWith("ch", StringComparison.OrdinalIgnoreCase) ||
-                    stem.EndsWith("sh", StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
-            else if (word.EndsWith("ies", StringComparison.OrdinalIgnoreCase))
-            {
-                // Check for words ending with consonant + y (which become "ies")
-                var stem = word.Substring(0, word.Length - 3);
-                if (stem.Length > 0 && !clsValidate.IsVowel(stem[stem.Length - 1]))
-                {
-                    return true;
-                }
-            }
-            else if (word.EndsWith("ves", StringComparison.OrdinalIgnoreCase))
-            {
-                // Check for words ending with f/fe (which become "ves")
-                var stem = word.Substring(0, word.Length - 3);
-                if (stem.EndsWith("f", StringComparison.OrdinalIgnoreCase) ||
-                    stem.EndsWith("fe", StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
-            else if (word.EndsWith("s", StringComparison.OrdinalIgnoreCase) &&
-                     !word.EndsWith("ss", StringComparison.OrdinalIgnoreCase))
-            {
-                // Regular plural ending with "s" (but not words that already end with "s")
-                return true;
+                return word;
             }
 
-            return false;
+            return word.Pluralize(false);
         }
 
         public static string CapitalizeFirstChars(string input)

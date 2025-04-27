@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using Humanizer;
 
 namespace Utilities
 {
@@ -157,10 +158,46 @@ namespace Utilities
             return Regex.IsMatch(phoneNumber, pattern);
         }
 
+        public static bool IsPlural(string? word)
+        {
+            if (string.IsNullOrWhiteSpace(word))
+            {
+                return false;
+            }
+
+            return word.Pluralize(false) == word;
+        }
+
+        public static bool IsSingle(string? word)
+        {
+            if (string.IsNullOrWhiteSpace(word))
+            {
+                return false;
+            }
+
+            // Words that are the same in singular and plural
+            var sameSingularPlural = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "series", "species", "deer", "sheep", "fish", "aircraft",
+        "offspring", "moose", "swine", "trout", "salmon"
+    };
+
+            if (sameSingularPlural.Contains(word))
+            {
+                return true;
+            }
+
+            // If the singularized form equals the original, it is singular
+            var singularForm = word.Singularize(false);
+
+            return string.Equals(singularForm, word, StringComparison.OrdinalIgnoreCase);
+        }
+
         public static bool IsVowel(char c)
         {
-            return "aeiouAEIOU".Contains(c);
+            return "aeiou".IndexOf(char.ToLowerInvariant(c)) >= 0;
         }
+
 
         /// <summary>
         /// Validates that a date is within a specific range.
