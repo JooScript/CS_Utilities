@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using System.Collections.Concurrent;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace Utilities
 {
@@ -25,7 +26,7 @@ namespace Utilities
             _schemaCache.Clear();
         }
 
-        private static void CheckConnectionStringInitialized()
+        private static void _CheckConnectionStringInitialized()
         {
             if (string.IsNullOrEmpty(_connectionString))
             {
@@ -33,11 +34,53 @@ namespace Utilities
             }
         }
 
+        public static bool VerifyProcedureExists(SqlConnection connection, string procedureName)
+        {
+            if (connection == null)
+            {
+                throw new ArgumentNullException(nameof(connection));
+            }
+
+            if (string.IsNullOrWhiteSpace(procedureName))
+            {
+                throw new ArgumentException("Procedure name cannot be null or whitespace.", nameof(procedureName));
+            }
+
+            const string checkSql = @"
+    SELECT 1 
+    FROM sys.sql_modules m
+    INNER JOIN sys.objects o ON m.object_id = o.object_id
+    WHERE o.type = 'P' 
+    AND SCHEMA_NAME(o.schema_id) = 'dbo' 
+    AND o.name = @ProcedureName";
+
+            try
+            {
+                using (var command = new SqlCommand(checkSql, connection))
+                {
+                    command.Parameters.Add("@ProcedureName", SqlDbType.NVarChar, 128).Value = procedureName;
+                    command.CommandTimeout = 15;
+                    return command.ExecuteScalar() != null;
+                }
+            }
+            catch (SqlException ex)
+            {
+                clsUtil.ErrorLogger(ex);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                clsUtil.ErrorLogger(ex);
+                return false;
+            }
+        }
+
+
         #region Async Methods
 
         public static async Task<List<string>> GetTableNamesAsync()
         {
-            CheckConnectionStringInitialized();
+            _CheckConnectionStringInitialized();
 
             var tables = new List<string>();
 
@@ -88,14 +131,14 @@ namespace Utilities
             return tables;
         }
 
-        private static async Task<List<ColumnInfo>> GetTableColumnsAsync(string tableName)
+        public static async Task<List<ColumnInfo>> GetTableColumnsAsync(string tableName)
         {
             if (string.IsNullOrWhiteSpace(tableName))
             {
                 throw new ArgumentException("Table name cannot be null or empty", nameof(tableName));
             }
 
-            CheckConnectionStringInitialized();
+            _CheckConnectionStringInitialized();
 
             var columns = new List<ColumnInfo>();
 
@@ -161,9 +204,9 @@ namespace Utilities
             return columns;
         }
 
-        private static async Task<List<string>> GetPrimaryKeysAsync(string tableName)
+        public static async Task<List<string>> GetPrimaryKeysAsync(string tableName)
         {
-            CheckConnectionStringInitialized();
+            _CheckConnectionStringInitialized();
 
             var primaryKeys = new List<string>();
 
@@ -173,10 +216,15 @@ namespace Utilities
                 await connection.OpenAsync();
 
                 const string query = @"
-                    SELECT COLUMN_NAME
-                    FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-                    WHERE TABLE_NAME = @TableName
-                    AND CONSTRAINT_NAME LIKE 'PK_%'";
+            SELECT COLUMN_NAME
+            FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE kcu
+            INNER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
+                ON kcu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
+                AND kcu.TABLE_SCHEMA = tc.TABLE_SCHEMA
+                AND kcu.TABLE_NAME = tc.TABLE_NAME
+            WHERE kcu.TABLE_NAME = @TableName
+            AND tc.CONSTRAINT_TYPE = 'PRIMARY KEY'
+            ORDER BY kcu.ORDINAL_POSITION";
 
                 await using var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@TableName", tableName);
@@ -194,15 +242,21 @@ namespace Utilities
             catch (Exception ex)
             {
                 clsUtil.ErrorLogger(ex);
-                throw;
+                throw; // Consider whether to rethrow or return empty list
             }
 
             return primaryKeys;
         }
 
-        private static async Task<List<ForeignKeyInfo>> GetForeignKeysAsync(string tableName)
+        public static async Task<string?> GetFirstPrimaryKeyAsync(string tableName)
         {
-            CheckConnectionStringInitialized();
+            var primaryKeys = await GetPrimaryKeysAsync(tableName);
+            return primaryKeys?.FirstOrDefault();
+        }
+
+        public static async Task<List<ForeignKeyInfo>> GetForeignKeysAsync(string tableName)
+        {
+            _CheckConnectionStringInitialized();
 
             var foreignKeys = new List<ForeignKeyInfo>();
 
@@ -254,7 +308,7 @@ namespace Utilities
 
         public static async Task<Dictionary<string, TableSchema>> GetDatabaseSchemaAsync(bool useCache = true)
         {
-            CheckConnectionStringInitialized();
+            _CheckConnectionStringInitialized();
 
             if (useCache && _schemaCache.Count > 0)
             {
@@ -321,6 +375,11 @@ namespace Utilities
         public static List<string> GetPrimaryKeys(string tableName)
         {
             return GetPrimaryKeysAsync(tableName).GetAwaiter().GetResult();
+        }
+
+        public static string GetFirstPrimaryKey(string tableName)
+        {
+            return GetFirstPrimaryKeyAsync(tableName).GetAwaiter().GetResult();
         }
 
         public static List<ForeignKeyInfo> GetForeignKeys(string tableName)

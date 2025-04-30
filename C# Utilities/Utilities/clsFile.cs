@@ -304,10 +304,7 @@ namespace Utilities
 
         public static string ReplaceFileNameWithGUID(string sourceFile)
         {
-            string fileName = sourceFile;
-            FileInfo fi = new FileInfo(fileName);
-            string extn = fi.Extension;
-            return clsUtil.GenerateGUID() + extn;
+            return clsUtil.GenerateGUID() + new FileInfo(sourceFile).Extension;
         }
 
         public static bool CopyImageToProjectImagesFolder(string DestinationFolder, ref string sourceFile)
@@ -330,6 +327,32 @@ namespace Utilities
 
             sourceFile = destinationFile;
             return true;
+        }
+
+        public static bool DeleteFile(string? imageLocation)
+        {
+            if (string.IsNullOrWhiteSpace(imageLocation))
+            {
+                clsUtil.ErrorLogger(new ArgumentNullException(nameof(imageLocation), "File path cannot be null or whitespace."));
+                return false;
+            }
+
+            try
+            {
+                if (!File.Exists(imageLocation))
+                {
+                    clsUtil.ErrorLogger(new FileNotFoundException("File not found", imageLocation));
+                    return false;
+                }
+
+                File.Delete(imageLocation);
+                return true;
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+            {
+                clsUtil.ErrorLogger(ex);
+                return false;
+            }
         }
 
     }
