@@ -1,10 +1,21 @@
 ﻿namespace Utilities
 {
-    public class clsUtil
+    public static class clsUtil
     {
         public static string GenerateGUID()
         {
             return Guid.NewGuid().ToString();
+        }
+
+        public static string GetMimeType(string filePath)
+        {
+            return Path.GetExtension(filePath).ToLowerInvariant() switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                _ => "application/octet-stream",
+            };
         }
 
         public static void ErrorLogger(Exception ex)
@@ -38,10 +49,8 @@
             bool isNullable = dbDataType.EndsWith("?");
             string typeWithoutNullable = isNullable ? dbDataType.Substring(0, dbDataType.Length - 1) : dbDataType;
 
-            // Convert SQL Server data types to C# types
             string csharpType = typeWithoutNullable.ToLower() switch
             {
-                // Exact matches
                 "int" => "int",
                 "bigint" => "long",
                 "smallint" => "short",
