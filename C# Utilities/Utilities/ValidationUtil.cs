@@ -3,7 +3,7 @@ using Humanizer;
 
 namespace Utilities
 {
-    public static class clsValidate
+    public static class ValidationUtil
     {
         /// <summary>
         /// Validates an age value with optional range constraints
@@ -58,7 +58,7 @@ namespace Utilities
                 {
                     if (createIfMissing)
                     {
-                        clsUtil.CreateFolderIfDoesNotExist(fullPath);
+                        GeneralUtil.CreateFolderIfDoesNotExist(fullPath);
                     }
                     else
                     {
@@ -75,7 +75,7 @@ namespace Utilities
             }
             catch (Exception ex)
             {
-                clsUtil.ErrorLogger(ex);
+                GeneralUtil.ErrorLogger(ex);
                 return false;
             }
         }

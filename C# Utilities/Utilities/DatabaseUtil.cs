@@ -4,7 +4,7 @@ using System.Data;
 
 namespace Utilities
 {
-    public static class clsDatabase
+    public static class DatabaseUtil
     {
         private static string _connectionString;
         private static readonly ConcurrentDictionary<string, TableSchema> _schemaCache = new();
@@ -52,26 +52,23 @@ AND o.name = @ProcedureName";
 
             try
             {
-                using (SqlConnection conn = new SqlConnection(_connectionString))
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                using (SqlCommand command = new SqlCommand(checkSql, connection))
                 {
-                    conn.Open();  // Open connection first
-
-                    using (SqlCommand command = new SqlCommand(checkSql, conn))  // Pass connection to command
-                    {
-                        command.Parameters.Add("@ProcedureName", SqlDbType.NVarChar, 128).Value = procedureName;
-                        command.CommandTimeout = 15;
-                        return command.ExecuteScalar() != null;
-                    }
+                    command.Parameters.Add("@ProcedureName", SqlDbType.NVarChar, 128).Value = procedureName;
+                    command.CommandTimeout = 15;
+                    connection.Open();
+                    return command.ExecuteScalar() != null;
                 }
             }
             catch (SqlException ex)
             {
-                clsUtil.ErrorLogger(ex);
+                GeneralUtil.ErrorLogger(ex);
                 return false;
             }
             catch (Exception ex)
             {
-                clsUtil.ErrorLogger(ex);
+                GeneralUtil.ErrorLogger(ex);
                 return false;
             }
         }
@@ -95,7 +92,7 @@ CREATE PROCEDURE [dbo].[{procedureName}]
 {procedureBody}
 GO";
 
-            return clsDatabase.ExecuteProcedureCreation(procSql, procedureName);
+            return DatabaseUtil.ExecuteProcedureCreation(procSql, procedureName);
         }
 
         public static bool ExecuteProcedureCreation(string procSql, string procedureName)
@@ -128,24 +125,26 @@ GO";
             }
             catch (SqlException sqlEx)
             {
-                clsUtil.ErrorLogger(new Exception(
+                GeneralUtil.ErrorLogger(new Exception(
                     $"Failed to create {procedureName} procedure. " +
                     $"SQL Error: {sqlEx.Message}", sqlEx));
                 return false;
             }
             catch (Exception ex)
             {
-                clsUtil.ErrorLogger(new Exception($"Unexpected error creating {procedureName} procedure. ", ex));
+                GeneralUtil.ErrorLogger(new Exception($"Unexpected error creating {procedureName} procedure. ", ex));
                 return false;
             }
         }
 
         public static string GetDefaultValueForType(string dbType, bool isNullable)
         {
-            string csharpType = clsUtil.ConvertDbTypeToCSharpType(dbType);
+            string csharpType = GeneralUtil.ConvertDbTypeToCSharpType(dbType);
 
             if (isNullable)
+            {
                 return "null";
+            }
 
             switch (csharpType)
             {
@@ -189,12 +188,12 @@ GO";
             }
             catch (ArgumentException ex)
             {
-                clsUtil.ErrorLogger(new Exception("Invalid connection string format", ex));
+                GeneralUtil.ErrorLogger(new Exception("Invalid connection string format", ex));
                 throw;
             }
             catch (Exception ex)
             {
-                clsUtil.ErrorLogger(new Exception("Error extracting app name from connection string", ex));
+                GeneralUtil.ErrorLogger(new Exception("Error extracting app name from connection string", ex));
                 throw;
             }
         }
@@ -248,7 +247,7 @@ END";
             }
             catch (SqlException sqlEx)
             {
-                clsUtil.ErrorLogger(new Exception(
+                GeneralUtil.ErrorLogger(new Exception(
                     $"Failed to delete {procedureName} procedure. " +
                     $"Database: {DatabaseName}. " +
                     $"SQL Error: {sqlEx.Message}", sqlEx));
@@ -256,7 +255,7 @@ END";
             }
             catch (Exception ex)
             {
-                clsUtil.ErrorLogger(new Exception(
+                GeneralUtil.ErrorLogger(new Exception(
                     $"Unexpected error deleting {procedureName} procedure. " +
                     $"Database: {DatabaseName}", ex));
                 return false;
@@ -496,12 +495,12 @@ END";
             }
             catch (SqlException sqlEx)
             {
-                clsUtil.ErrorLogger(sqlEx);
+                GeneralUtil.ErrorLogger(sqlEx);
                 throw;
             }
             catch (Exception ex)
             {
-                clsUtil.ErrorLogger(ex);
+                GeneralUtil.ErrorLogger(ex);
                 throw;
             }
 
@@ -573,7 +572,7 @@ END";
             }
             catch (Exception ex)
             {
-                clsUtil.ErrorLogger(ex);
+                GeneralUtil.ErrorLogger(ex);
                 throw;
             }
 
@@ -617,7 +616,7 @@ END";
             }
             catch (Exception ex)
             {
-                clsUtil.ErrorLogger(ex);
+                GeneralUtil.ErrorLogger(ex);
                 throw; // Consider whether to rethrow or return empty list
             }
 
@@ -690,7 +689,7 @@ END";
             }
             catch (Exception ex)
             {
-                clsUtil.ErrorLogger(ex);
+                GeneralUtil.ErrorLogger(ex);
                 throw;
             }
 
@@ -742,7 +741,7 @@ END";
             }
             catch (Exception ex)
             {
-                clsUtil.ErrorLogger(ex);
+                GeneralUtil.ErrorLogger(ex);
                 throw;
             }
 

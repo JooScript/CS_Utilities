@@ -1,10 +1,9 @@
 ﻿using System.Text;
 using Humanizer;
 
-
 namespace Utilities
 {
-    public class clsFormat
+    public class FormatUtil
     {
         public static string DateToShort(DateTime Dt1)
         {
@@ -39,7 +38,7 @@ namespace Utilities
                 return word;
             }
 
-            if (clsValidate.IsSingle(word))
+            if (ValidationUtil.IsSingle(word))
             {
                 return word;
             }
@@ -54,7 +53,6 @@ namespace Utilities
                 return null;
             }
 
-            // Words that are same in singular and plural form
             var sameSingularPlural = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         "series", "species", "deer", "sheep", "fish", "aircraft",
@@ -67,7 +65,7 @@ namespace Utilities
             }
 
             // If already plural, return as is
-            if (clsValidate.IsPlural(word))
+            if (ValidationUtil.IsPlural(word))
             {
                 return word;
             }

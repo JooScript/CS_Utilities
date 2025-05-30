@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Utilities;
 
-public static class clsNumberSystemConverter
+public static class NumberSystemConverterUtil
 {
     #region Binary Conversions
 
@@ -12,7 +12,7 @@ public static class clsNumberSystemConverter
     /// <returns>Decimal integer value</returns>
     public static int BinaryToDecimal(string binary)
     {
-        clsValidate.ValidateBinary(binary);
+        ValidationUtil.ValidateBinary(binary);
 
         bool isNegative = binary.StartsWith("-");
         string cleanBinary = isNegative ? binary.Substring(1) : binary;
@@ -30,7 +30,7 @@ public static class clsNumberSystemConverter
     /// </summary>
     public static string BinaryToHexadecimal(string binary)
     {
-        clsValidate.ValidateBinary(binary);
+        ValidationUtil.ValidateBinary(binary);
 
         // Pad with leading zeros to make length a multiple of 4
         int padding = (4 - (binary.Length % 4)) % 4;
@@ -53,7 +53,7 @@ public static class clsNumberSystemConverter
     /// </summary>
     public static string BinaryToOctal(string binary)
     {
-        clsValidate.ValidateBinary(binary);
+        ValidationUtil.ValidateBinary(binary);
 
         // Pad with leading zeros to make length a multiple of 3
         int padding = (3 - (binary.Length % 3)) % 3;
@@ -143,7 +143,7 @@ public static class clsNumberSystemConverter
     /// </summary>
     public static int HexadecimalToDecimal(string hex)
     {
-        clsValidate.ValidateHexadecimal(hex);
+        ValidationUtil.ValidateHexadecimal(hex);
         return Convert.ToInt32(hex, 16);
     }
 
@@ -152,7 +152,7 @@ public static class clsNumberSystemConverter
     /// </summary>
     public static string HexadecimalToBinary(string hex)
     {
-        clsValidate.ValidateHexadecimal(hex);
+        ValidationUtil.ValidateHexadecimal(hex);
         return DecimalToBinary(HexadecimalToDecimal(hex));
     }
 
@@ -161,7 +161,7 @@ public static class clsNumberSystemConverter
     /// </summary>
     public static string HexadecimalToOctal(string hex)
     {
-        clsValidate.ValidateHexadecimal(hex);
+        ValidationUtil.ValidateHexadecimal(hex);
         return DecimalToOctal(HexadecimalToDecimal(hex));
     }
 
@@ -174,7 +174,7 @@ public static class clsNumberSystemConverter
     /// </summary>
     public static int OctalToDecimal(string octal)
     {
-        clsValidate.ValidateOctal(octal);
+        ValidationUtil.ValidateOctal(octal);
         return Convert.ToInt32(octal, 8);
     }
 
@@ -183,7 +183,7 @@ public static class clsNumberSystemConverter
     /// </summary>
     public static string OctalToBinary(string octal)
     {
-        clsValidate.ValidateOctal(octal);
+        ValidationUtil.ValidateOctal(octal);
         return DecimalToBinary(OctalToDecimal(octal));
     }
 
@@ -192,7 +192,7 @@ public static class clsNumberSystemConverter
     /// </summary>
     public static string OctalToHexadecimal(string octal)
     {
-        clsValidate.ValidateOctal(octal);
+        ValidationUtil.ValidateOctal(octal);
         return DecimalToHexadecimal(OctalToDecimal(octal));
     }
 

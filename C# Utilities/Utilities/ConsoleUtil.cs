@@ -2,7 +2,7 @@
 
 namespace Utilities
 {
-    public class clsConsole
+    public class ConsoleUtil
     {
         public static void DataTableConsolePrinting(DataTable dataTable)
         {
@@ -38,7 +38,7 @@ namespace Utilities
 
             for (int i = 0; i < list.Count; i++)
             {
-                Console.WriteLine($"[{clsFormat.FormatNumbers(i + 1, list.Count)}] {list[i]}");
+                Console.WriteLine($"[{FormatUtil.FormatNumbers(i + 1, list.Count)}] {list[i]}");
             }
         }
 

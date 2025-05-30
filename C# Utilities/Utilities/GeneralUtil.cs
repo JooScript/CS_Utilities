@@ -1,6 +1,6 @@
 ﻿namespace Utilities
 {
-    public static class clsUtil
+    public static class GeneralUtil
     {
         public static string GenerateGUID()
         {
@@ -18,11 +18,16 @@
             };
         }
 
-        public static void ErrorLogger(Exception ex)
+        public static void ErrorLogger(Exception ex, bool exThrow = false)
         {
-            clsFile.LogLevel = clsFile.enLogLevel.Error;
-            clsLogger FileLogger = new clsLogger(clsFile.LogToFile);
-            FileLogger.Log(clsFormat.ExceptionToString(ex));
+            FileUtil.LogLevel = FileUtil.enLogLevel.Error;
+            LoggerUtil FileLogger = new LoggerUtil(FileUtil.LogToFile);
+            FileLogger.Log(FormatUtil.ExceptionToString(ex));
+
+            if (exThrow)
+            {
+                throw ex;
+            }
         }
 
         public static bool CreateFolderIfDoesNotExist(string FolderPath)
@@ -36,7 +41,7 @@
                 }
                 catch (Exception ex)
                 {
-                    clsUtil.ErrorLogger(ex);
+                    GeneralUtil.ErrorLogger(ex);
                     return false;
                 }
             }
@@ -45,7 +50,6 @@
 
         public static string ConvertDbTypeToCSharpType(string dbDataType)
         {
-            // Handle nullable types by checking if the input ends with "?"
             bool isNullable = dbDataType.EndsWith("?");
             string typeWithoutNullable = isNullable ? dbDataType.Substring(0, dbDataType.Length - 1) : dbDataType;
 
@@ -89,6 +93,30 @@
             }
 
             return csharpType;
+        }
+
+        public static string GetDefaultValue(string csharpType, bool isNullable)
+        {
+            if (isNullable)
+            {
+                return "null";
+            }
+
+            switch (csharpType)
+            {
+                case "string": return "null";
+                case "int": return "0";
+                case "decimal": return "0m";
+                case "double": return "0.0";
+                case "float": return "0f";
+                case "DateTime": return "DateTime.MinValue";
+                case "bool": return "false";
+                case "byte[]": return "null";
+                case "byte": return "(byte)0";
+                case "short": return "0";
+                case "long": return "0L";
+                default: return "null";
+            }
         }
 
     }

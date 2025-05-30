@@ -2,7 +2,7 @@
 
 namespace Utilities
 {
-    public class clsWin
+    public class WinUtil
     {
         public static void LogToWinEventLog(string logMessage, string AppName, EventLogEntryType Type = EventLogEntryType.Error)
         {
@@ -16,7 +16,7 @@ namespace Utilities
             }
             catch (Exception logEx)
             {
-                clsUtil.ErrorLogger(logEx);
+                GeneralUtil.ErrorLogger(logEx);
             }
         }
 
