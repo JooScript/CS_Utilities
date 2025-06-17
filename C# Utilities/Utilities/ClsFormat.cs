@@ -3,7 +3,7 @@ using Humanizer;
 
 namespace Utilities
 {
-    public class FormatUtil
+    public class ClsFormat
     {
         public static string DateToShort(DateTime Dt1)
         {
@@ -38,7 +38,7 @@ namespace Utilities
                 return word;
             }
 
-            if (ValidationUtil.IsSingle(word))
+            if (ClsValidation.IsSingle(word))
             {
                 return word;
             }
@@ -65,7 +65,7 @@ namespace Utilities
             }
 
             // If already plural, return as is
-            if (ValidationUtil.IsPlural(word))
+            if (ClsValidation.IsPlural(word))
             {
                 return word;
             }

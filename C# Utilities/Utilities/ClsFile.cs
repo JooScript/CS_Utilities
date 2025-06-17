@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace Utilities
 {
-    public static class FileUtil
+    public static class ClsFile
     {
         #region Logging
 
@@ -71,7 +71,7 @@ namespace Utilities
                     var normalizedPath = Path.GetFullPath(value); // Resolves relative paths
                     lock (_logDirLock)
                     {
-                        GeneralUtil.CreateFolderIfDoesNotExist(normalizedPath);
+                        ClsUtil.CreateFolderIfDoesNotExist(normalizedPath);
                         _logDirectory = normalizedPath;
                     }
                 }
@@ -120,7 +120,7 @@ namespace Utilities
                 string logFileName = $"AppLog_{DateTime.Now:yyyyMMdd}.log";
                 string logFilePath = Path.Combine(_logDirectory, logFileName);
 
-                GeneralUtil.CreateFolderIfDoesNotExist(_logDirectory);
+                ClsUtil.CreateFolderIfDoesNotExist(_logDirectory);
 
                 string logEntry = $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss.fff}] [{_LogLevel.ToString()}] {message}{Environment.NewLine}";
                 var fileLock = _fileLocks.GetOrAdd(logFilePath, _ => new SemaphoreSlim(1, 1));
@@ -165,7 +165,7 @@ namespace Utilities
 
             try
             {
-                GeneralUtil.CreateFolderIfDoesNotExist(_logDirectory);
+                ClsUtil.CreateFolderIfDoesNotExist(_logDirectory);
 
                 string logFilePath = Path.Combine(_logDirectory, LogFileName);
 
@@ -223,7 +223,7 @@ namespace Utilities
             }
             catch (Exception ex)
             {
-                GeneralUtil.ErrorLogger(ex);
+                ClsUtil.ErrorLogger(ex);
                 return false;
             }
         }
@@ -257,7 +257,7 @@ namespace Utilities
             }
             catch (Exception ex)
             {
-                GeneralUtil.ErrorLogger(ex);
+                ClsUtil.ErrorLogger(ex);
                 return false;
             }
         }
@@ -271,7 +271,7 @@ namespace Utilities
                 DestinationFolder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             }
 
-            if (!GeneralUtil.CreateFolderIfDoesNotExist(DestinationFolder))
+            if (!ClsUtil.CreateFolderIfDoesNotExist(DestinationFolder))
             {
                 return false;
             }
@@ -292,7 +292,7 @@ namespace Utilities
             }
             catch (Exception logEx)
             {
-                GeneralUtil.ErrorLogger(logEx);
+                ClsUtil.ErrorLogger(logEx);
                 return false;
             }
         }
@@ -304,12 +304,12 @@ namespace Utilities
 
         public static string ReplaceFileNameWithGUID(string sourceFile)
         {
-            return GeneralUtil.GenerateGUID() + new FileInfo(sourceFile).Extension;
+            return ClsUtil.GenerateGUID() + new FileInfo(sourceFile).Extension;
         }
 
         public static bool CopyImageToProjectImagesFolder(string DestinationFolder, ref string sourceFile)
         {
-            if (!GeneralUtil.CreateFolderIfDoesNotExist(DestinationFolder))
+            if (!ClsUtil.CreateFolderIfDoesNotExist(DestinationFolder))
             {
                 return false;
             }
@@ -321,7 +321,7 @@ namespace Utilities
             }
             catch (IOException iox)
             {
-                GeneralUtil.ErrorLogger(iox);
+                ClsUtil.ErrorLogger(iox);
                 return false;
             }
 
@@ -333,7 +333,7 @@ namespace Utilities
         {
             if (string.IsNullOrWhiteSpace(imageLocation))
             {
-                GeneralUtil.ErrorLogger(new ArgumentNullException(nameof(imageLocation), "File path cannot be null or whitespace."));
+                ClsUtil.ErrorLogger(new ArgumentNullException(nameof(imageLocation), "File path cannot be null or whitespace."));
                 return false;
             }
 
@@ -341,7 +341,7 @@ namespace Utilities
             {
                 if (!File.Exists(imageLocation))
                 {
-                    GeneralUtil.ErrorLogger(new FileNotFoundException("File not found", imageLocation));
+                    ClsUtil.ErrorLogger(new FileNotFoundException("File not found", imageLocation));
                     return false;
                 }
 
@@ -350,7 +350,7 @@ namespace Utilities
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
             {
-                GeneralUtil.ErrorLogger(ex);
+                ClsUtil.ErrorLogger(ex);
                 return false;
             }
         }

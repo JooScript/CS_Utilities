@@ -1,6 +1,6 @@
 ﻿namespace Utilities
 {
-    public class SecurityUtil
+    public class ClsSecurity
     {
         public static string HashPassword(string password)
         {

@@ -4,7 +4,7 @@ using System.Data;
 
 namespace Utilities
 {
-    public static class DatabaseUtil
+    public static class ClsDatabase
     {
         private static string _connectionString;
         private static readonly ConcurrentDictionary<string, TableSchema> _schemaCache = new();
@@ -63,12 +63,12 @@ AND o.name = @ProcedureName";
             }
             catch (SqlException ex)
             {
-                GeneralUtil.ErrorLogger(ex);
+                ClsUtil.ErrorLogger(ex);
                 return false;
             }
             catch (Exception ex)
             {
-                GeneralUtil.ErrorLogger(ex);
+                ClsUtil.ErrorLogger(ex);
                 return false;
             }
         }
@@ -92,7 +92,7 @@ CREATE PROCEDURE [dbo].[{procedureName}]
 {procedureBody}
 GO";
 
-            return DatabaseUtil.ExecuteProcedureCreation(procSql, procedureName);
+            return ClsDatabase.ExecuteProcedureCreation(procSql, procedureName);
         }
 
         public static bool ExecuteProcedureCreation(string procSql, string procedureName)
@@ -125,21 +125,21 @@ GO";
             }
             catch (SqlException sqlEx)
             {
-                GeneralUtil.ErrorLogger(new Exception(
+                ClsUtil.ErrorLogger(new Exception(
                     $"Failed to create {procedureName} procedure. " +
                     $"SQL Error: {sqlEx.Message}", sqlEx));
                 return false;
             }
             catch (Exception ex)
             {
-                GeneralUtil.ErrorLogger(new Exception($"Unexpected error creating {procedureName} procedure. ", ex));
+                ClsUtil.ErrorLogger(new Exception($"Unexpected error creating {procedureName} procedure. ", ex));
                 return false;
             }
         }
 
         public static string GetDefaultValueForType(string dbType, bool isNullable)
         {
-            string csharpType = GeneralUtil.ConvertDbTypeToCSharpType(dbType);
+            string csharpType = ClsUtil.ConvertDbTypeToCSharpType(dbType);
 
             if (isNullable)
             {
@@ -188,12 +188,12 @@ GO";
             }
             catch (ArgumentException ex)
             {
-                GeneralUtil.ErrorLogger(new Exception("Invalid connection string format", ex));
+                ClsUtil.ErrorLogger(new Exception("Invalid connection string format", ex));
                 throw;
             }
             catch (Exception ex)
             {
-                GeneralUtil.ErrorLogger(new Exception("Error extracting app name from connection string", ex));
+                ClsUtil.ErrorLogger(new Exception("Error extracting app name from connection string", ex));
                 throw;
             }
         }
@@ -247,7 +247,7 @@ END";
             }
             catch (SqlException sqlEx)
             {
-                GeneralUtil.ErrorLogger(new Exception(
+                ClsUtil.ErrorLogger(new Exception(
                     $"Failed to delete {procedureName} procedure. " +
                     $"Database: {DatabaseName}. " +
                     $"SQL Error: {sqlEx.Message}", sqlEx));
@@ -255,7 +255,7 @@ END";
             }
             catch (Exception ex)
             {
-                GeneralUtil.ErrorLogger(new Exception(
+                ClsUtil.ErrorLogger(new Exception(
                     $"Unexpected error deleting {procedureName} procedure. " +
                     $"Database: {DatabaseName}", ex));
                 return false;
@@ -495,12 +495,12 @@ END";
             }
             catch (SqlException sqlEx)
             {
-                GeneralUtil.ErrorLogger(sqlEx);
+                ClsUtil.ErrorLogger(sqlEx);
                 throw;
             }
             catch (Exception ex)
             {
-                GeneralUtil.ErrorLogger(ex);
+                ClsUtil.ErrorLogger(ex);
                 throw;
             }
 
@@ -572,7 +572,7 @@ END";
             }
             catch (Exception ex)
             {
-                GeneralUtil.ErrorLogger(ex);
+                ClsUtil.ErrorLogger(ex);
                 throw;
             }
 
@@ -616,7 +616,7 @@ END";
             }
             catch (Exception ex)
             {
-                GeneralUtil.ErrorLogger(ex);
+                ClsUtil.ErrorLogger(ex);
                 throw; // Consider whether to rethrow or return empty list
             }
 
@@ -689,7 +689,7 @@ END";
             }
             catch (Exception ex)
             {
-                GeneralUtil.ErrorLogger(ex);
+                ClsUtil.ErrorLogger(ex);
                 throw;
             }
 
@@ -741,7 +741,7 @@ END";
             }
             catch (Exception ex)
             {
-                GeneralUtil.ErrorLogger(ex);
+                ClsUtil.ErrorLogger(ex);
                 throw;
             }
 

@@ -1,24 +1,7 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\Yousef\\Documents\\GitHub\\Utilities\\C# Utilities\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{6F38C2F1-D4D7-56EE-DF4D-A099C1A9A515}|Utilities.csproj|c:\\users\\yousef\\documents\\github\\utilities\\c# utilities\\windows.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6F38C2F1-D4D7-56EE-DF4D-A099C1A9A515}|Utilities.csproj|solutionrelative:windows.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6F38C2F1-D4D7-56EE-DF4D-A099C1A9A515}|Utilities.csproj|c:\\users\\yousef\\documents\\github\\utilities\\c# utilities\\file.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6F38C2F1-D4D7-56EE-DF4D-A099C1A9A515}|Utilities.csproj|solutionrelative:file.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6F38C2F1-D4D7-56EE-DF4D-A099C1A9A515}|Utilities.csproj|c:\\users\\yousef\\documents\\github\\utilities\\c# utilities\\security.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6F38C2F1-D4D7-56EE-DF4D-A099C1A9A515}|Utilities.csproj|solutionrelative:security.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6F38C2F1-D4D7-56EE-DF4D-A099C1A9A515}|Utilities.csproj|c:\\users\\yousef\\documents\\github\\utilities\\c# utilities\\utilities.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6F38C2F1-D4D7-56EE-DF4D-A099C1A9A515}|Utilities.csproj|solutionrelative:utilities.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    }
-  ],
+  "WorkspaceRootPath": "C:\\Users\\Yousef\\Documents\\GitHub\\CS_Utilities\\C# Utilities\\",
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -26,63 +9,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": -1,
           "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Windows.cs",
-              "DocumentMoniker": "C:\\Users\\Yousef\\Documents\\GitHub\\Utilities\\C# Utilities\\Windows.cs",
-              "RelativeDocumentMoniker": "Windows.cs",
-              "ToolTip": "C:\\Users\\Yousef\\Documents\\GitHub\\Utilities\\C# Utilities\\Windows.cs",
-              "RelativeToolTip": "Windows.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-27T18:27:06.086Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "Utilities.cs",
-              "DocumentMoniker": "C:\\Users\\Yousef\\Documents\\GitHub\\Utilities\\C# Utilities\\Utilities.cs",
-              "RelativeDocumentMoniker": "Utilities.cs",
-              "ToolTip": "C:\\Users\\Yousef\\Documents\\GitHub\\Utilities\\C# Utilities\\Utilities.cs",
-              "RelativeToolTip": "Utilities.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-27T18:25:10.305Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "File.cs",
-              "DocumentMoniker": "C:\\Users\\Yousef\\Documents\\GitHub\\Utilities\\C# Utilities\\File.cs",
-              "RelativeDocumentMoniker": "File.cs",
-              "ToolTip": "C:\\Users\\Yousef\\Documents\\GitHub\\Utilities\\C# Utilities\\File.cs",
-              "RelativeToolTip": "File.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-27T18:16:34.12Z",
-              "EditorCaption": ""
-            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Security.cs",
-              "DocumentMoniker": "C:\\Users\\Yousef\\Documents\\GitHub\\Utilities\\C# Utilities\\Security.cs",
-              "RelativeDocumentMoniker": "Security.cs",
-              "ToolTip": "C:\\Users\\Yousef\\Documents\\GitHub\\Utilities\\C# Utilities\\Security.cs",
-              "RelativeToolTip": "Security.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-27T18:17:21.229Z",
-              "EditorCaption": ""
             }
           ]
         }

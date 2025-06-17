@@ -1,11 +1,11 @@
 ﻿namespace Utilities
 {
-    internal class LoggerUtil
+    internal class ClsLogger
     {
         public delegate void LogAction(string Msg);
         private LogAction _logAction;
 
-        public LoggerUtil(LogAction action)
+        public ClsLogger(LogAction action)
         {
             _logAction = action;
         }

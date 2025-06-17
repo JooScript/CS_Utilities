@@ -1,6 +1,6 @@
 ﻿namespace Utilities
 {
-    public static class GeneralUtil
+    public static class ClsUtil
     {
         public static string GenerateGUID()
         {
@@ -20,9 +20,9 @@
 
         public static void ErrorLogger(Exception ex, bool exThrow = false)
         {
-            FileUtil.LogLevel = FileUtil.enLogLevel.Error;
-            LoggerUtil FileLogger = new LoggerUtil(FileUtil.LogToFile);
-            FileLogger.Log(FormatUtil.ExceptionToString(ex));
+            ClsFile.LogLevel = ClsFile.enLogLevel.Error;
+            ClsLogger FileLogger = new ClsLogger(ClsFile.LogToFile);
+            FileLogger.Log(ClsFormat.ExceptionToString(ex));
 
             if (exThrow)
             {
@@ -41,7 +41,7 @@
                 }
                 catch (Exception ex)
                 {
-                    GeneralUtil.ErrorLogger(ex);
+                    ClsUtil.ErrorLogger(ex);
                     return false;
                 }
             }
