@@ -10,7 +10,7 @@
         /// </summary>
         /// <param name="years">Maximum years in the past (default: 10)</param>
         /// <returns>Random DateTime in the past</returns>
-        public static DateTime GenerateRandomPastDateTime(int years = 10)
+        public static DateTime GetPastDate(int years = 10)
         {
             if (years <= 0)
             {
@@ -29,7 +29,7 @@
         /// <param name="startDate">Start date of range</param>
         /// <param name="endDate">End date of range</param>
         /// <returns>Random DateTime within range</returns>
-        public static DateTime GenerateRandomDateTime(DateTime startDate, DateTime endDate)
+        public static DateTime GetDateBetween(DateTime startDate, DateTime endDate)
         {
             if (startDate >= endDate)
             {
@@ -51,7 +51,7 @@
         /// <typeparam name="T">Type of items in list</typeparam>
         /// <param name="list">List to pick from</param>
         /// <returns>Random item from list</returns>
-        public static T PickFromListRandom<T>(IList<T> list)
+        public static T GetItem<T>(IList<T> list)
         {
             if (list == null || list.Count == 0)
             {
@@ -69,7 +69,7 @@
         /// </summary>
         /// <typeparam name="T">Enum type</typeparam>
         /// <returns>Random enum value</returns>
-        public static T PickFromEnumRandom<T>() where T : Enum
+        public static T GetEnumValue<T>() where T : Enum
         {
             T[] values = (T[])Enum.GetValues(typeof(T));
             lock (_syncLock)
@@ -83,7 +83,7 @@
         /// </summary>
         /// <param name="probability">Probability of true (0.0 to 1.0)</param>
         /// <returns>Random boolean</returns>
-        public static bool GenerateRandomBool(double probability = 0.5)
+        public static bool GetBool(double probability = 0.5)
         {
             if (probability < 0 || probability > 1)
             {
@@ -102,7 +102,7 @@
         /// <param name="min">Minimum value (inclusive)</param>
         /// <param name="max">Maximum value (exclusive)</param>
         /// <returns>Random integer</returns>
-        public static int GenerateRandomInt(int min, int max)
+        public static int GetInt(int min = 1, int max = 100)
         {
             lock (_syncLock)
             {
@@ -116,7 +116,7 @@
         /// <param name="min">Minimum value</param>
         /// <param name="max">Maximum value</param>
         /// <returns>Random double</returns>
-        public static double GenerateRandomDouble(double min = 0.0, double max = 1.0)
+        public static double GetDouble(double min = 0.0, double max = 1.0)
         {
             if (min >= max)
             {
@@ -135,7 +135,7 @@
         /// <param name="length">Length of string</param>
         /// <param name="chars">Character set to use (default: a-z, A-Z, 0-9)</param>
         /// <returns>Random string</returns>
-        public static string GenerateRandomString(int length, string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+        public static string GetString(int length, string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
         {
             if (length <= 0)
             {
@@ -158,16 +158,13 @@
         /// </summary>
         /// <param name="length">Length of string</param>
         /// <returns>Random alphanumeric string</returns>
-        public static string GenerateRandomAlphanumericString(int length)
-        {
-            return GenerateRandomString(length);
-        }
+        public static string GetAlphanumeric(int length) => GetString(length);
 
         /// <summary>
         /// Generates a random color
         /// </summary>
         /// <returns>Random color</returns>
-        public static System.Drawing.Color GenerateRandomColor()
+        public static System.Drawing.Color GetColor()
         {
             lock (_syncLock)
             {
@@ -229,7 +226,7 @@
         /// <param name="items">List of items</param>
         /// <param name="weights">List of weights corresponding to items</param>
         /// <returns>Randomly selected item based on weights</returns>
-        public static T PickFromListWeighted<T>(IList<T> items, IList<double> weights)
+        public static T GetWeighted<T>(IList<T> items, IList<double> weights)
         {
             if (items == null || weights == null)
             {
