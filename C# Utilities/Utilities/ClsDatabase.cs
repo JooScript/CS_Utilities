@@ -507,6 +507,18 @@ END";
             return tables;
         }
 
+        public static async Task<bool> TableExistsAsync(string tableName)
+        {
+            _CheckConnectionStringInitialized();
+            if (string.IsNullOrWhiteSpace(tableName))
+            {
+                throw new ArgumentException("Table name cannot be null or empty", nameof(tableName));
+            }
+
+            var tableNames = await GetTableNamesAsync();
+            return tableNames.Contains(tableName);
+        }
+
         public static async Task<List<ColumnInfo>> GetTableColumnsAsync(string tableName)
         {
             if (string.IsNullOrWhiteSpace(tableName))
@@ -572,8 +584,7 @@ END";
             }
             catch (Exception ex)
             {
-                ClsUtil.ErrorLogger(ex);
-                throw;
+                ClsUtil.ErrorLogger(ex, true);
             }
 
             return columns;
@@ -755,6 +766,11 @@ END";
         public static List<string> GetTableNames()
         {
             return GetTableNamesAsync().GetAwaiter().GetResult();
+        }
+
+        public static bool TableExists(string tableName)
+        {
+            return TableExistsAsync(tableName).GetAwaiter().GetResult();
         }
 
         public static List<ColumnInfo> GetTableColumns(string tableName)
