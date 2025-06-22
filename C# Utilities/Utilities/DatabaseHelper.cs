@@ -42,107 +42,42 @@ namespace Utilities
             }
         }
 
-        public static bool VerifyProcedureExists(string procedureName)
+        private static string _BuildMasterConnectionString()
+        {
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(_connectionString);
+            builder.InitialCatalog = "master";
+            return builder.ToString();
+        }
+
+        public static string ExtractAppNameFromConnectionString()
         {
             _CheckConnectionStringInitialized();
 
-            if (string.IsNullOrWhiteSpace(procedureName))
+            if (string.IsNullOrWhiteSpace(_connectionString))
             {
-                throw new ArgumentException("Procedure name cannot be null or whitespace.", nameof(procedureName));
-            }
-
-            const string checkSql = @"
-SELECT 1 
-FROM sys.sql_modules m
-INNER JOIN sys.objects o ON m.object_id = o.object_id
-WHERE o.type = 'P' 
-AND SCHEMA_NAME(o.schema_id) = 'dbo' 
-AND o.name = @ProcedureName";
-
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(_connectionString))
-                using (SqlCommand command = new SqlCommand(checkSql, connection))
-                {
-                    command.Parameters.Add("@ProcedureName", SqlDbType.NVarChar, 128).Value = procedureName;
-                    command.CommandTimeout = 15;
-                    connection.Open();
-                    return command.ExecuteScalar() != null;
-                }
-            }
-            catch (SqlException ex)
-            {
-                Helper.ErrorLogger(ex);
-                return false;
-            }
-            catch (Exception ex)
-            {
-                Helper.ErrorLogger(ex);
-                return false;
-            }
-        }
-
-        public static bool CreateStoredProcedure(string procedureName, string procedureBody)
-        {
-            _CheckConnectionStringInitialized();
-            string AppName = ExtractAppNameFromConnectionString(_connectionString);
-            if (string.IsNullOrWhiteSpace(AppName))
-                throw new ArgumentNullException(nameof(AppName));
-
-            string procSql = $@"
-USE [{AppName}];
-GO
-
-IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = '{procedureName}')
-    DROP PROCEDURE [dbo].[{procedureName}];
-GO
-
-CREATE PROCEDURE [dbo].[{procedureName}]
-{procedureBody}
-GO";
-
-            return DatabaseHelper.ExecuteProcedureCreation(procSql, procedureName);
-        }
-
-        public static bool ExecuteProcedureCreation(string procSql, string procedureName)
-        {
-            if (VerifyProcedureExists(procedureName))
-            {
-                if (!DeleteStoredProcedure(procedureName))
-                {
-                    return false;
-                }
+                throw new ArgumentNullException(nameof(_connectionString), "Connection string cannot be null or empty");
             }
 
             try
             {
-                using (var connection = new SqlConnection(_connectionString))
+                var builder = new SqlConnectionStringBuilder(_connectionString);
+
+                if (string.IsNullOrWhiteSpace(builder.InitialCatalog))
                 {
-                    connection.Open();
-                    var commands = procSql.Split(new[] { "GO" }, StringSplitOptions.RemoveEmptyEntries);
-
-                    foreach (var cmdText in commands)
-                    {
-                        using (var command = new SqlCommand(cmdText, connection))
-                        {
-                            command.ExecuteNonQuery();
-                        }
-                    }
-
-                    return VerifyProcedureExists(procedureName);
+                    throw new ArgumentException("Connection string does not contain a database name (Initial Catalog)");
                 }
+
+                return builder.InitialCatalog;
             }
-            catch (SqlException sqlEx)
+            catch (ArgumentException ex)
             {
-                Helper.ErrorLogger(new Exception(
-                    $"Failed to create {procedureName} procedure. " +
-                    $"SQL Error: {sqlEx.Message}", sqlEx));
-                return false;
+                Helper.ErrorLogger(new Exception("Invalid connection string format", ex));
+                throw;
             }
             catch (Exception ex)
             {
-                Helper.ErrorLogger(new Exception($"Unexpected error creating {procedureName} procedure. ", ex));
-                return false;
+                Helper.ErrorLogger(new Exception("Error extracting app name from connection string", ex));
+                throw;
             }
         }
 
@@ -177,38 +112,6 @@ GO";
             }
         }
 
-        public static string ExtractAppNameFromConnectionString(string connectionString)
-        {
-            _CheckConnectionStringInitialized();
-
-            if (string.IsNullOrWhiteSpace(connectionString))
-            {
-                throw new ArgumentNullException(nameof(connectionString), "Connection string cannot be null or empty");
-            }
-
-            try
-            {
-                var builder = new SqlConnectionStringBuilder(connectionString);
-
-                if (string.IsNullOrWhiteSpace(builder.InitialCatalog))
-                {
-                    throw new ArgumentException("Connection string does not contain a database name (Initial Catalog)");
-                }
-
-                return builder.InitialCatalog;
-            }
-            catch (ArgumentException ex)
-            {
-                Helper.ErrorLogger(new Exception("Invalid connection string format", ex));
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Helper.ErrorLogger(new Exception("Error extracting app name from connection string", ex));
-                throw;
-            }
-        }
-
         /// <summary>
         /// Backs up a SQL Server database to the specified path.
         /// </summary>
@@ -226,7 +129,7 @@ GO";
 
             ServerConnection serverConnection = null;
             string backDir = $"C:\\BackupTemp";
-            string databaseName = ExtractAppNameFromConnectionString(_connectionString);
+            string databaseName = ExtractAppNameFromConnectionString();
             string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
             string typeStr = type.ToString();
             string fileName = $"{databaseName}_{typeStr}_{timestamp}.bak";
@@ -291,10 +194,172 @@ GO";
             return true;
         }
 
+        /// <summary>
+        /// Restores a SQL Server database from a backup file.
+        /// </summary>
+        /// <param name="backupFilePath">Full path to the .bak file</param>
+        /// <param name="overwrite">True to overwrite existing database</param>
+        /// <returns>True if restore succeeded, false otherwise</returns>
+        public static bool RestoreDatabase(string backupFilePath, bool overwrite = true)
+        {
+            if (string.IsNullOrWhiteSpace(backupFilePath) || !File.Exists(backupFilePath))
+            {
+                Helper.ErrorLogger(new Exception($"[ERROR] Backup file not found: {backupFilePath}"));
+                return false;
+            }
+
+            string databaseName = ExtractAppNameFromConnectionString();
+
+            try
+            {
+                // Connect to the master database, not the target DB
+                SqlConnection sqlConnection = new SqlConnection(_BuildMasterConnectionString());
+                ServerConnection serverConnection = new ServerConnection(sqlConnection);
+                Server sqlServer = new Server(serverConnection);
+
+                // Ensure exclusive access to the DB before restore
+                sqlServer.KillAllProcesses(databaseName);
+
+                Restore restore = new Restore
+                {
+                    Action = RestoreActionType.Database,
+                    Database = databaseName,
+                    ReplaceDatabase = overwrite,
+                    NoRecovery = false
+                };
+                restore.Devices.AddDevice(backupFilePath, DeviceType.File);
+                restore.RelocateFiles.Clear();
+
+                DataTable logicalFiles = restore.ReadFileList(sqlServer);
+                string dataLogicalName = logicalFiles.Rows[0]["LogicalName"].ToString();
+                string logLogicalName = logicalFiles.Rows[1]["LogicalName"].ToString();
+
+                string dataFilePath = Path.Combine(sqlServer.Settings.DefaultFile, $"{databaseName}.mdf");
+                string logFilePath = Path.Combine(sqlServer.Settings.DefaultLog, $"{databaseName}_log.ldf");
+
+                restore.RelocateFiles.Add(new RelocateFile(dataLogicalName, dataFilePath));
+                restore.RelocateFiles.Add(new RelocateFile(logLogicalName, logFilePath));
+
+                restore.SqlRestore(sqlServer);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Helper.ErrorLogger(new Exception("[ERROR] Database restore failed\n", ex), true);
+                return false;
+            }
+        }
+
+        #region Stored Precedures
+
+        public static bool VerifyProcedureExists(string procedureName)
+        {
+            _CheckConnectionStringInitialized();
+
+            if (string.IsNullOrWhiteSpace(procedureName))
+            {
+                throw new ArgumentException("Procedure name cannot be null or whitespace.", nameof(procedureName));
+            }
+
+            const string checkSql = @"
+SELECT 1 
+FROM sys.sql_modules m
+INNER JOIN sys.objects o ON m.object_id = o.object_id
+WHERE o.type = 'P' 
+AND SCHEMA_NAME(o.schema_id) = 'dbo' 
+AND o.name = @ProcedureName";
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                using (SqlCommand command = new SqlCommand(checkSql, connection))
+                {
+                    command.Parameters.Add("@ProcedureName", SqlDbType.NVarChar, 128).Value = procedureName;
+                    command.CommandTimeout = 15;
+                    connection.Open();
+                    return command.ExecuteScalar() != null;
+                }
+            }
+            catch (SqlException ex)
+            {
+                Helper.ErrorLogger(ex);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Helper.ErrorLogger(ex);
+                return false;
+            }
+        }
+
+        public static bool CreateStoredProcedure(string procedureName, string procedureBody)
+        {
+            _CheckConnectionStringInitialized();
+            string AppName = ExtractAppNameFromConnectionString();
+            if (string.IsNullOrWhiteSpace(AppName))
+                throw new ArgumentNullException(nameof(AppName));
+
+            string procSql = $@"
+USE [{AppName}];
+GO
+
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = '{procedureName}')
+    DROP PROCEDURE [dbo].[{procedureName}];
+GO
+
+CREATE PROCEDURE [dbo].[{procedureName}]
+{procedureBody}
+GO";
+
+            return DatabaseHelper.ExecuteProcedureCreation(procSql, procedureName);
+        }
+
+        public static bool ExecuteProcedureCreation(string procSql, string procedureName)
+        {
+            if (VerifyProcedureExists(procedureName))
+            {
+                if (!DeleteStoredProcedure(procedureName))
+                {
+                    return false;
+                }
+            }
+
+            try
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    var commands = procSql.Split(new[] { "GO" }, StringSplitOptions.RemoveEmptyEntries);
+
+                    foreach (var cmdText in commands)
+                    {
+                        using (var command = new SqlCommand(cmdText, connection))
+                        {
+                            command.ExecuteNonQuery();
+                        }
+                    }
+
+                    return VerifyProcedureExists(procedureName);
+                }
+            }
+            catch (SqlException sqlEx)
+            {
+                Helper.ErrorLogger(new Exception(
+                    $"Failed to create {procedureName} procedure. " +
+                    $"SQL Error: {sqlEx.Message}", sqlEx));
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Helper.ErrorLogger(new Exception($"Unexpected error creating {procedureName} procedure. ", ex));
+                return false;
+            }
+        }
+
         public static bool DeleteStoredProcedure(string procedureName)
         {
             _CheckConnectionStringInitialized();
-            string DatabaseName = ExtractAppNameFromConnectionString(_connectionString);
+            string DatabaseName = ExtractAppNameFromConnectionString();
 
             if (string.IsNullOrWhiteSpace(DatabaseName))
             {
@@ -463,6 +528,8 @@ END";
 
             return (overallSuccess, deletedCount, errors);
         }
+
+        #endregion
 
         #region Async Methods
 
@@ -927,32 +994,3 @@ END";
 
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

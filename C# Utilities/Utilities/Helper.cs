@@ -79,7 +79,6 @@ namespace Utilities
             }
         }
 
-
         public static bool CreateFolderIfDoesNotExist(string FolderPath)
         {
             if (!Directory.Exists(FolderPath))
