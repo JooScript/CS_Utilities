@@ -1,11 +1,20 @@
 ﻿using Microsoft.Data.SqlClient;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Smo;
 using System.Collections.Concurrent;
 using System.Data;
+using System.Text;
 
 namespace Utilities
 {
-    public static class ClsDatabase
+    public static class DatabaseHelper
     {
+        public enum BackupType
+        {
+            Full = 0,
+            Differential = 1
+        }
+
         private static string _connectionString;
         private static readonly ConcurrentDictionary<string, TableSchema> _schemaCache = new();
         private static readonly object _lock = new();
@@ -63,12 +72,12 @@ AND o.name = @ProcedureName";
             }
             catch (SqlException ex)
             {
-                ClsUtil.ErrorLogger(ex);
+                Helper.ErrorLogger(ex);
                 return false;
             }
             catch (Exception ex)
             {
-                ClsUtil.ErrorLogger(ex);
+                Helper.ErrorLogger(ex);
                 return false;
             }
         }
@@ -92,7 +101,7 @@ CREATE PROCEDURE [dbo].[{procedureName}]
 {procedureBody}
 GO";
 
-            return ClsDatabase.ExecuteProcedureCreation(procSql, procedureName);
+            return DatabaseHelper.ExecuteProcedureCreation(procSql, procedureName);
         }
 
         public static bool ExecuteProcedureCreation(string procSql, string procedureName)
@@ -125,21 +134,21 @@ GO";
             }
             catch (SqlException sqlEx)
             {
-                ClsUtil.ErrorLogger(new Exception(
+                Helper.ErrorLogger(new Exception(
                     $"Failed to create {procedureName} procedure. " +
                     $"SQL Error: {sqlEx.Message}", sqlEx));
                 return false;
             }
             catch (Exception ex)
             {
-                ClsUtil.ErrorLogger(new Exception($"Unexpected error creating {procedureName} procedure. ", ex));
+                Helper.ErrorLogger(new Exception($"Unexpected error creating {procedureName} procedure. ", ex));
                 return false;
             }
         }
 
         public static string GetDefaultValueForType(string dbType, bool isNullable)
         {
-            string csharpType = ClsUtil.ConvertDbTypeToCSharpType(dbType);
+            string csharpType = Helper.ConvertDbTypeToCSharpType(dbType);
 
             if (isNullable)
             {
@@ -170,6 +179,8 @@ GO";
 
         public static string ExtractAppNameFromConnectionString(string connectionString)
         {
+            _CheckConnectionStringInitialized();
+
             if (string.IsNullOrWhiteSpace(connectionString))
             {
                 throw new ArgumentNullException(nameof(connectionString), "Connection string cannot be null or empty");
@@ -188,15 +199,93 @@ GO";
             }
             catch (ArgumentException ex)
             {
-                ClsUtil.ErrorLogger(new Exception("Invalid connection string format", ex));
+                Helper.ErrorLogger(new Exception("Invalid connection string format", ex));
                 throw;
             }
             catch (Exception ex)
             {
-                ClsUtil.ErrorLogger(new Exception("Error extracting app name from connection string", ex));
+                Helper.ErrorLogger(new Exception("Error extracting app name from connection string", ex));
                 throw;
             }
         }
+
+        /// <summary>
+        /// Backs up a SQL Server database to the specified path.
+        /// </summary>
+        /// <param name="backupDirectory">The Directory of the backup file.</param>
+        /// <param name="type">The type of backup (Full or Differential).</param>
+        /// <returns>True if backup succeeded; false otherwise.</returns>
+        /// <summary>
+        /// Backs up a SQL Server database to a default backup directory with auto-generated file name.
+        /// </summary>
+        /// <param name="type">The type of backup (Full or Differential).</param>
+        /// <returns>True if backup succeeded; false otherwise.</returns>
+        public static bool BackupDatabase(string backupDirectory, BackupType type = BackupType.Full)
+        {
+            _CheckConnectionStringInitialized();
+
+            ServerConnection serverConnection = null;
+            string backDir = "C:\\BackupTest";
+            string databaseName = ExtractAppNameFromConnectionString(_connectionString);
+            string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            string typeStr = type.ToString();
+            string fileName = $"{databaseName}_{typeStr}_{timestamp}.bak";
+            string backupPath = Path.Combine(backDir, fileName);
+
+            try
+            {
+
+                if (!Directory.Exists(backDir))
+                {
+                    Directory.CreateDirectory(backDir);
+                }
+
+                using (SqlConnection sqlConnection = new SqlConnection(_connectionString))
+                {
+                    sqlConnection.Open();
+
+                    serverConnection = new ServerConnection(sqlConnection);
+                    Server server = new Server(serverConnection);
+
+                    if (!server.Databases.Contains(databaseName))
+                        throw new InvalidOperationException($"Database '{databaseName}' does not exist on server '{serverConnection.ServerInstance}'.");
+
+                    Backup backup = new Backup
+                    {
+                        Action = BackupActionType.Database,
+                        Database = databaseName,
+                        BackupSetName = $"{databaseName} {typeStr} Backup",
+                        BackupSetDescription = $"{typeStr} backup of {databaseName} on {DateTime.Now:yyyy-MM-dd HH:mm:ss}",
+                        Incremental = type == BackupType.Differential,
+                        LogTruncation = BackupTruncateLogType.Truncate,
+                        Initialize = type == BackupType.Full
+                    };
+
+                    backup.Devices.AddDevice(backupPath, DeviceType.File);
+                    backup.SqlBackup(server);
+                }
+
+                if (!File.Exists(backupPath))
+                {
+                    throw new IOException($"Backup file was not created at: {backupPath}");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Helper.ErrorLogger(new Exception("[ERROR] Database backup failed", ex), true);
+                return false;
+            }
+            finally
+            {
+                if (serverConnection != null && serverConnection.IsOpen)
+                    serverConnection.Disconnect();
+            }
+
+            return FileHelper.CopyFileToFolder(backupDirectory, ref backupPath);
+
+        }
+
 
         public static bool DeleteStoredProcedure(string procedureName)
         {
@@ -247,7 +336,7 @@ END";
             }
             catch (SqlException sqlEx)
             {
-                ClsUtil.ErrorLogger(new Exception(
+                Helper.ErrorLogger(new Exception(
                     $"Failed to delete {procedureName} procedure. " +
                     $"Database: {DatabaseName}. " +
                     $"SQL Error: {sqlEx.Message}", sqlEx));
@@ -255,7 +344,7 @@ END";
             }
             catch (Exception ex)
             {
-                ClsUtil.ErrorLogger(new Exception(
+                Helper.ErrorLogger(new Exception(
                     $"Unexpected error deleting {procedureName} procedure. " +
                     $"Database: {DatabaseName}", ex));
                 return false;
@@ -263,27 +352,29 @@ END";
         }
 
         /// <summary>
-        /// Deletes all stored procedures in the database
+        /// Deletes all user-defined stored procedures in the database
         /// </summary>
-        /// <param name="connectionString">Database connection string</param>
         /// <param name="excludeSystemProcedures">Whether to exclude system stored procedures (default true)</param>
         /// <returns>Tuple containing (success flag, deleted count, error messages)</returns>
-        public static (bool Success, int DeletedCount, List<string> Errors) DeleteAllStoredProcedures(string connectionString)
+        public static (bool Success, int DeletedCount, List<string> Errors) DeleteAllStoredProcedures()
         {
             var errors = new List<string>();
             int deletedCount = 0;
             bool overallSuccess = true;
+            bool excludeSystemProcedures = true;
 
-            if (string.IsNullOrWhiteSpace(connectionString))
+            _CheckConnectionStringInitialized();
+
+            if (string.IsNullOrWhiteSpace(_connectionString))
             {
                 errors.Add("Connection string cannot be null or empty");
                 return (false, 0, errors);
             }
 
-            string databaseName;
+            string databaseName = "";
             try
             {
-                var builder = new SqlConnectionStringBuilder(connectionString);
+                var builder = new SqlConnectionStringBuilder(_connectionString);
                 databaseName = builder.InitialCatalog;
 
                 if (string.IsNullOrWhiteSpace(databaseName))
@@ -298,126 +389,40 @@ END";
                 return (false, 0, errors);
             }
 
-            List<string> proceduresToDelete = new List<string>();
-
-            try
-            {
-                using (var connection = new SqlConnection(connectionString))
-                {
-                    connection.Open();
-
-                    // Get all stored procedures
-                    string sql = @"SELECT SCHEMA_NAME(schema_id) + '.' + name AS ProcedureName
-                                FROM sys.objects
-                                WHERE type = 'P'";
-
-
-                    sql += " AND is_ms_shipped = 0";
-
-
-                    using (var command = new SqlCommand(sql, connection))
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            proceduresToDelete.Add(reader["ProcedureName"].ToString());
-                        }
-                    }
-
-                    // Delete each procedure
-                    foreach (var procedure in proceduresToDelete)
-                    {
-                        try
-                        {
-                            string dropSql = $"DROP PROCEDURE [{procedure.Split('.')[0]}].[{procedure.Split('.')[1]}]";
-
-                            using (var dropCommand = new SqlCommand(dropSql, connection))
-                            {
-                                dropCommand.ExecuteNonQuery();
-                                deletedCount++;
-                            }
-                        }
-                        catch (SqlException sqlEx)
-                        {
-                            overallSuccess = false;
-                            errors.Add($"Failed to delete procedure {procedure}: {sqlEx.Message}");
-                        }
-                        catch (Exception ex)
-                        {
-                            overallSuccess = false;
-                            errors.Add($"Unexpected error deleting procedure {procedure}: {ex.Message}");
-                        }
-                    }
-                }
-            }
-            catch (SqlException sqlEx)
-            {
-                errors.Add($"Database error: {sqlEx.Message}");
-                return (false, deletedCount, errors);
-            }
-            catch (Exception ex)
-            {
-                errors.Add($"Unexpected error: {ex.Message}");
-                return (false, deletedCount, errors);
-            }
-
-            return (overallSuccess, deletedCount, errors);
-        }
-
-        /// <summary>
-        /// Deletes all stored procedures with a specific prefix
-        /// </summary>
-        /// <param name="connectionString">Database connection string</param>
-        /// <param name="prefix">Prefix to match (e.g., "SP_")</param>
-        /// <returns>Tuple containing (success flag, deleted count, error messages)</returns>
-        public static (bool Success, int DeletedCount, List<string> Errors) DeleteStoredProceduresByPrefix(string prefix)
-        {
-            var errors = new List<string>();
-            int deletedCount = 0;
-            bool overallSuccess = true;
-
-            if (string.IsNullOrWhiteSpace(prefix))
-            {
-                errors.Add("Prefix cannot be null or empty");
-                return (false, 0, errors);
-            }
-
-            var result = DeleteAllStoredProcedures(_connectionString);
-            if (!result.Success)
-            {
-                return result;
-            }
-
-            // Filter procedures by prefix
-            List<string> filteredProcedures = new List<string>();
-
             try
             {
                 using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
 
-                    string sql = $@"SELECT SCHEMA_NAME(schema_id) + '.' + name AS ProcedureName
-                               FROM sys.objects
-                               WHERE type = 'P' 
-                               AND is_ms_shipped = 0
-                               AND name LIKE '{prefix}%'";
+                    var sql = new StringBuilder(@"
+                SELECT 
+                    QUOTENAME(SCHEMA_NAME(schema_id)) + '.' + QUOTENAME(name) AS FullQualifiedProcedureName
+                FROM sys.procedures
+                WHERE type = 'P'");
 
-                    using (var command = new SqlCommand(sql, connection))
+                    if (excludeSystemProcedures)
+                    {
+                        sql.Append(" AND is_ms_shipped = 0");
+                    }
+
+                    var proceduresToDelete = new List<string>();
+                    using (var command = new SqlCommand(sql.ToString(), connection))
                     using (var reader = command.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            filteredProcedures.Add(reader["ProcedureName"].ToString());
+                            proceduresToDelete.Add(reader["FullQualifiedProcedureName"].ToString());
                         }
                     }
 
-                    // Delete each matching procedure
-                    foreach (var procedure in filteredProcedures)
+                    // Delete procedures in reverse dependency order (optional - could be added)
+                    foreach (var procedure in proceduresToDelete)
                     {
                         try
                         {
-                            string dropSql = $"DROP PROCEDURE [{procedure.Split('.')[0]}].[{procedure.Split('.')[1]}]";
+                            // Already properly quoted in the query
+                            string dropSql = $"DROP PROCEDURE {procedure}";
 
                             using (var dropCommand = new SqlCommand(dropSql, connection))
                             {
@@ -429,6 +434,8 @@ END";
                         {
                             overallSuccess = false;
                             errors.Add($"Failed to delete procedure {procedure}: {sqlEx.Message}");
+                            // Log the specific error number for troubleshooting
+                            errors.Add($"SQL Error #{sqlEx.Number}: {sqlEx.Message}");
                         }
                         catch (Exception ex)
                         {
@@ -441,6 +448,7 @@ END";
             catch (SqlException sqlEx)
             {
                 errors.Add($"Database error: {sqlEx.Message}");
+                errors.Add($"SQL Error #{sqlEx.Number}: {sqlEx.Message}");
                 return (false, deletedCount, errors);
             }
             catch (Exception ex)
@@ -495,12 +503,12 @@ END";
             }
             catch (SqlException sqlEx)
             {
-                ClsUtil.ErrorLogger(sqlEx);
+                Helper.ErrorLogger(sqlEx);
                 throw;
             }
             catch (Exception ex)
             {
-                ClsUtil.ErrorLogger(ex);
+                Helper.ErrorLogger(ex);
                 throw;
             }
 
@@ -584,7 +592,7 @@ END";
             }
             catch (Exception ex)
             {
-                ClsUtil.ErrorLogger(ex, true);
+                Helper.ErrorLogger(ex, true);
             }
 
             return columns;
@@ -627,7 +635,7 @@ END";
             }
             catch (Exception ex)
             {
-                ClsUtil.ErrorLogger(ex);
+                Helper.ErrorLogger(ex);
                 throw; // Consider whether to rethrow or return empty list
             }
 
@@ -700,7 +708,7 @@ END";
             }
             catch (Exception ex)
             {
-                ClsUtil.ErrorLogger(ex);
+                Helper.ErrorLogger(ex);
                 throw;
             }
 
@@ -752,7 +760,7 @@ END";
             }
             catch (Exception ex)
             {
-                ClsUtil.ErrorLogger(ex);
+                Helper.ErrorLogger(ex);
                 throw;
             }
 
@@ -915,3 +923,32 @@ END";
 
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

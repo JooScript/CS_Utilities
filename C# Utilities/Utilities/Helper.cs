@@ -1,6 +1,8 @@
-﻿namespace Utilities
+﻿using System.Text;
+
+namespace Utilities
 {
-    public static class ClsUtil
+    public static class Helper
     {
         public static string GenerateGUID()
         {
@@ -18,11 +20,32 @@
             };
         }
 
-        public static void ErrorLogger(Exception ex, bool exThrow = false)
+        public static void ErrorLogger(Exception ex, bool DetailedExp = true, bool exThrow = false)
         {
-            ClsFile.LogLevel = ClsFile.enLogLevel.Error;
-            ClsLogger FileLogger = new ClsLogger(ClsFile.LogToFile);
-            FileLogger.Log(ClsFormat.ExceptionToString(ex));
+            FileHelper.LogLevel = FileHelper.enLogLevel.Error;
+            Logger FileLogger = new Logger(FileHelper.LogToFile);
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("");
+
+            if (DetailedExp)
+            {
+                int level = 0;
+                while (ex != null)
+                {
+                    sb.AppendLine($"--- Exception Level {level} ---");
+                    sb.AppendLine($"Type       : {ex.GetType().FullName}");
+                    sb.AppendLine($"Message    : {ex.Message}");
+                    sb.AppendLine($"StackTrace : {ex.StackTrace}");
+                    ex = ex.InnerException;
+                    level++;
+                }
+                FileLogger.Log(sb.ToString());
+            }
+            else
+            {
+                FileLogger.Log(FormatHelper.ExceptionToString(ex));
+            }
 
             if (exThrow)
             {
@@ -41,7 +64,7 @@
                 }
                 catch (Exception ex)
                 {
-                    ClsUtil.ErrorLogger(ex);
+                    Helper.ErrorLogger(ex);
                     return false;
                 }
             }

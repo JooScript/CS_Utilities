@@ -2,7 +2,7 @@
 
 namespace Utilities
 {
-    public class ClsConsole
+    public class ConsoleHelper
     {
 
         /// <summary>
@@ -83,14 +83,14 @@ namespace Utilities
             {
                 for (int i = 0; i < list.Count; i++)
                 {
-                    Console.WriteLine($"[{ClsFormat.FormatNumbers(i + 1, list.Count)}] {list[i]}");
+                    Console.WriteLine($"[{FormatHelper.FormatNumbers(i + 1, list.Count)}] {list[i]}");
                 }
             }
             else
             {
                 for (int i = 0; i < list.Count; i++)
                 {
-                    Console.Write($"[{ClsFormat.FormatNumbers(i + 1, list.Count)}] {list[i]}  ");
+                    Console.Write($"[{FormatHelper.FormatNumbers(i + 1, list.Count)}] {list[i]}  ");
                 }
             }
 

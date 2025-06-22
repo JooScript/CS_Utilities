@@ -1,6 +1,6 @@
 ﻿namespace Utilities
 {
-    public static class ClsRandom
+    public static class RandomHelper
     {
         private static readonly Random _random = new Random();
         private static readonly object _syncLock = new object();

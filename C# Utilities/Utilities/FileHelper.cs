@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace Utilities
 {
-    public static class ClsFile
+    public static class FileHelper
     {
         #region Logging
 
@@ -71,7 +71,7 @@ namespace Utilities
                     var normalizedPath = Path.GetFullPath(value); // Resolves relative paths
                     lock (_logDirLock)
                     {
-                        ClsUtil.CreateFolderIfDoesNotExist(normalizedPath);
+                        Helper.CreateFolderIfDoesNotExist(normalizedPath);
                         _logDirectory = normalizedPath;
                     }
                 }
@@ -120,7 +120,7 @@ namespace Utilities
                 string logFileName = $"AppLog_{DateTime.Now:yyyyMMdd}.log";
                 string logFilePath = Path.Combine(_logDirectory, logFileName);
 
-                ClsUtil.CreateFolderIfDoesNotExist(_logDirectory);
+                Helper.CreateFolderIfDoesNotExist(_logDirectory);
 
                 string logEntry = $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss.fff}] [{_LogLevel.ToString()}] {message}{Environment.NewLine}";
                 var fileLock = _fileLocks.GetOrAdd(logFilePath, _ => new SemaphoreSlim(1, 1));
@@ -165,7 +165,7 @@ namespace Utilities
 
             try
             {
-                ClsUtil.CreateFolderIfDoesNotExist(_logDirectory);
+                Helper.CreateFolderIfDoesNotExist(_logDirectory);
 
                 string logFilePath = Path.Combine(_logDirectory, LogFileName);
 
@@ -223,7 +223,7 @@ namespace Utilities
             }
             catch (Exception ex)
             {
-                ClsUtil.ErrorLogger(ex);
+                Helper.ErrorLogger(ex);
                 return false;
             }
         }
@@ -257,7 +257,7 @@ namespace Utilities
             }
             catch (Exception ex)
             {
-                ClsUtil.ErrorLogger(ex);
+                Helper.ErrorLogger(ex);
                 return false;
             }
         }
@@ -271,7 +271,7 @@ namespace Utilities
                 DestinationFolder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             }
 
-            if (!ClsUtil.CreateFolderIfDoesNotExist(DestinationFolder))
+            if (!Helper.CreateFolderIfDoesNotExist(DestinationFolder))
             {
                 return false;
             }
@@ -292,7 +292,7 @@ namespace Utilities
             }
             catch (Exception logEx)
             {
-                ClsUtil.ErrorLogger(logEx);
+                Helper.ErrorLogger(logEx);
                 return false;
             }
         }
@@ -304,55 +304,128 @@ namespace Utilities
 
         public static string ReplaceFileNameWithGUID(string sourceFile)
         {
-            return ClsUtil.GenerateGUID() + new FileInfo(sourceFile).Extension;
+            return Helper.GenerateGUID() + new FileInfo(sourceFile).Extension;
         }
 
-        public static bool CopyImageToProjectImagesFolder(string DestinationFolder, ref string sourceFile)
+        public static bool HandleFileToFolder(string destinationFolder, ref string sourceFile, bool replaceWithGuid, Func<string, string, bool> fileOperation)
         {
-            if (!ClsUtil.CreateFolderIfDoesNotExist(DestinationFolder))
-            {
+            if (!Helper.CreateFolderIfDoesNotExist(destinationFolder))
                 return false;
-            }
-
-            string destinationFile = DestinationFolder + ReplaceFileNameWithGUID(sourceFile);
-            try
-            {
-                File.Copy(sourceFile, destinationFile, true);
-            }
-            catch (IOException iox)
-            {
-                ClsUtil.ErrorLogger(iox);
-                return false;
-            }
-
-            sourceFile = destinationFile;
-            return true;
-        }
-
-        public static bool DeleteFile(string? imageLocation)
-        {
-            if (string.IsNullOrWhiteSpace(imageLocation))
-            {
-                ClsUtil.ErrorLogger(new ArgumentNullException(nameof(imageLocation), "File path cannot be null or whitespace."));
-                return false;
-            }
 
             try
             {
-                if (!File.Exists(imageLocation))
+                string fileName;
+
+                if (replaceWithGuid)
                 {
-                    ClsUtil.ErrorLogger(new FileNotFoundException("File not found", imageLocation));
+                    fileName = ReplaceFileNameWithGUID(sourceFile);
+                }
+                else
+                {
+                    fileName = Path.GetFileName(sourceFile);
+                    string nameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+                    string ext = Path.GetExtension(fileName);
+                    string destinationFile = Path.Combine(destinationFolder, fileName);
+
+                    int counter = 1;
+                    while (File.Exists(destinationFile))
+                    {
+                        string newFileName = $"{nameWithoutExt} ({counter}){ext}";
+                        destinationFile = Path.Combine(destinationFolder, newFileName);
+                        counter++;
+                    }
+
+                    fileName = Path.GetFileName(destinationFile);
+                }
+
+                string finalDestination = Path.Combine(destinationFolder, fileName);
+
+                if (!fileOperation(sourceFile, finalDestination))
+                {
                     return false;
                 }
 
-                File.Delete(imageLocation);
+                sourceFile = finalDestination;
+                return true;
+            }
+            catch (IOException iox)
+            {
+                Helper.ErrorLogger(iox);
+                return false;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Helper.ErrorLogger(ex);
+                return false;
+            }
+        }
+
+        public static bool CopyFileToFolder(string destinationFolder, ref string sourceFile, bool replaceWithGuid = false)
+        {
+            return HandleFileToFolder(destinationFolder, ref sourceFile, replaceWithGuid, (src, dest) =>
+            {
+                File.Copy(src, dest);
+                return true;
+            });
+        }
+
+        public static bool MoveFileToFolder(string destinationFolder, ref string sourceFile, bool replaceWithGuid = false)
+        {
+            return HandleFileToFolder(destinationFolder, ref sourceFile, replaceWithGuid, (src, dest) =>
+            {
+                File.Move(src, dest);
+                return true;
+            });
+        }
+
+        public static bool DeleteFile(string? fileLocation)
+        {
+            if (string.IsNullOrWhiteSpace(fileLocation))
+            {
+                Helper.ErrorLogger(new ArgumentNullException(nameof(fileLocation), "File path cannot be null or whitespace."));
+                return false;
+            }
+
+            try
+            {
+                if (!File.Exists(fileLocation))
+                {
+                    Helper.ErrorLogger(new FileNotFoundException("File not found", fileLocation));
+                    return false;
+                }
+
+                File.Delete(fileLocation);
                 return true;
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
             {
-                ClsUtil.ErrorLogger(ex);
+                Helper.ErrorLogger(ex);
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Waits until the specified file is available for exclusive access.
+        /// </summary>
+        /// <param name="filePath">The path of the file to check.</param>
+        /// <param name="maxAttempts">Maximum retry attempts.</param>
+        /// <param name="delayMs">Delay in milliseconds between attempts.</param>
+        /// <returns>True if the file becomes available; otherwise, false.</returns>
+        public static bool WaitForFileAvailable(string filePath, int maxAttempts = 5, int delayMs = 1000)
+        {
+            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            {
+                try
+                {
+                    using (FileStream fs = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.None))
+                        return true;
+                }
+                catch (IOException)
+                {
+                    Thread.Sleep(delayMs);
+                }
+            }
+            return false;
         }
 
     }
