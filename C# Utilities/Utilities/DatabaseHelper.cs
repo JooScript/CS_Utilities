@@ -220,12 +220,12 @@ GO";
         /// </summary>
         /// <param name="type">The type of backup (Full or Differential).</param>
         /// <returns>True if backup succeeded; false otherwise.</returns>
-        public static bool BackupDatabase(string backupDirectory, BackupType type = BackupType.Full)
+        public static bool BackupDatabase(ref string filePath, BackupType type = BackupType.Full)
         {
             _CheckConnectionStringInitialized();
 
             ServerConnection serverConnection = null;
-            string backDir = "C:\\BackupTest";
+            string backDir = $"C:\\BackupTemp";
             string databaseName = ExtractAppNameFromConnectionString(_connectionString);
             string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
             string typeStr = type.ToString();
@@ -267,7 +267,7 @@ GO";
 
                 if (!File.Exists(backupPath))
                 {
-                    throw new IOException($"Backup file was not created at: {backupPath}");
+                    Helper.ErrorLogger(new IOException($"Backup file was not created at: {backupPath}"));
                 }
 
             }
@@ -279,13 +279,17 @@ GO";
             finally
             {
                 if (serverConnection != null && serverConnection.IsOpen)
+                {
                     serverConnection.Disconnect();
+                }
             }
 
-            return FileHelper.CopyFileToFolder(backupDirectory, ref backupPath);
-
+            FileHelper.WaitForFileAvailable(backupPath);
+            FileHelper.MoveFileToFolder(filePath, ref backupPath);
+            filePath = backupPath;
+            Helper.DeleteFolder(backDir, true);
+            return true;
         }
-
 
         public static bool DeleteStoredProcedure(string procedureName)
         {

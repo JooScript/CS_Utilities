@@ -7,6 +7,16 @@ namespace Utilities
 {
     public static class FileHelper
     {
+        public enum enSpecialFolderType
+        {
+            Desktop,
+            Documents,
+            Downloads,
+            AppData,
+            LocalAppData,
+            ProgramFiles
+        }
+
         #region Logging
 
         #region Locks
@@ -378,7 +388,9 @@ namespace Utilities
             });
         }
 
-        public static bool DeleteFile(string? fileLocation)
+
+
+        public static bool DeleteFile(string fileLocation)
         {
             if (string.IsNullOrWhiteSpace(fileLocation))
             {
@@ -428,5 +440,33 @@ namespace Utilities
             return false;
         }
 
+        public static string GetPath(enSpecialFolderType type)
+        {
+            try
+            {
+                return type switch
+                {
+                    enSpecialFolderType.Desktop => Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+
+                    enSpecialFolderType.Documents => Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+
+                    enSpecialFolderType.AppData => Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+
+                    enSpecialFolderType.LocalAppData => Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+
+                    enSpecialFolderType.ProgramFiles => Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+
+                    enSpecialFolderType.Downloads => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads"),
+
+                    _ => string.Empty
+                };
+            }
+            catch (Exception ex)
+            {
+                Helper.ErrorLogger(ex);
+                return string.Empty;
+            }
+
+        }
     }
 }

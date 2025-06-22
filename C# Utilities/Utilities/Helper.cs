@@ -53,6 +53,33 @@ namespace Utilities
             }
         }
 
+        public static bool DeleteFolder(string folderPath, bool recursive = false)
+        {
+            if (string.IsNullOrWhiteSpace(folderPath))
+            {
+                Helper.ErrorLogger(new ArgumentNullException(nameof(folderPath), "Folder path cannot be null or whitespace."));
+                return false;
+            }
+
+            try
+            {
+                if (!Directory.Exists(folderPath))
+                {
+
+                    return true;
+                }
+
+                Directory.Delete(folderPath, recursive);
+                return true;
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+            {
+                Helper.ErrorLogger(ex);
+                return false;
+            }
+        }
+
+
         public static bool CreateFolderIfDoesNotExist(string FolderPath)
         {
             if (!Directory.Exists(FolderPath))
