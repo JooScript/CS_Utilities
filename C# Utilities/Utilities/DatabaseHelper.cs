@@ -83,7 +83,7 @@ namespace Utilities
 
         public static string GetDefaultValueForType(string dbType, bool isNullable)
         {
-            string csharpType = Helper.ConvertDbTypeToCSharpType(dbType);
+            string csharpType = Helper.GetCSharpType(dbType);
 
             if (isNullable)
             {

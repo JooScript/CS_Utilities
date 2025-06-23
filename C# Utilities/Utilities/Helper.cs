@@ -53,6 +53,20 @@ namespace Utilities
             }
         }
 
+        public static void InfoLogger(string msg)
+        {
+            FileHelper.LogLevel = FileHelper.enLogLevel.Info;
+            Logger FileLogger = new Logger(FileHelper.LogToFile);
+            FileLogger.Log(msg);
+        }
+
+        public static void WarnLogger(string msg)
+        {
+            FileHelper.LogLevel = FileHelper.enLogLevel.Warn;
+            Logger FileLogger = new Logger(FileHelper.LogToFile);
+            FileLogger.Log(msg);
+        }
+
         public static bool DeleteFolder(string folderPath, bool recursive = false)
         {
             if (string.IsNullOrWhiteSpace(folderPath))
@@ -97,10 +111,10 @@ namespace Utilities
             return true;
         }
 
-        public static string ConvertDbTypeToCSharpType(string dbDataType)
+        public static string GetCSharpType(string sqlType)
         {
-            bool isNullable = dbDataType.EndsWith("?");
-            string typeWithoutNullable = isNullable ? dbDataType.Substring(0, dbDataType.Length - 1) : dbDataType;
+            bool isNullable = sqlType.EndsWith("?");
+            string typeWithoutNullable = isNullable ? sqlType.Substring(0, sqlType.Length - 1) : sqlType;
 
             string csharpType = typeWithoutNullable.ToLower() switch
             {
