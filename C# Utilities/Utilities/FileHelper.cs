@@ -388,8 +388,6 @@ namespace Utilities
             });
         }
 
-
-
         public static bool DeleteFile(string fileLocation)
         {
             if (string.IsNullOrWhiteSpace(fileLocation))
@@ -466,7 +464,6 @@ namespace Utilities
                 Helper.ErrorLogger(ex);
                 return string.Empty;
             }
-
         }
     }
 }
