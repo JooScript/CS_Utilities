@@ -5,14 +5,14 @@ The **Utilities** repository provides a collection of helper classes designed to
 
 ## Features
 - **Console.cs**: Enhancements for console-based applications, including color-coded output and input handling.
-- **File.cs**: File manipulation utilities for reading, writing, and managing files.
+- **File.cs**: File manipulation Utilities for reading, writing, and managing files.
 - **Format.cs**: Data formatting helpers for common transformations and string manipulations.
 - **Logger.cs**: A simple logging mechanism for debugging and application monitoring.
-- **NumberSystemConverter.cs**: Conversion utilities between different number systems (binary, decimal, hexadecimal, etc.).
-- **Security.cs**: Basic encryption, decryption, and hashing utilities.
+- **NumberSystemConverter.cs**: Conversion Utilities between different number systems (binary, decimal, hexadecimal, etc.).
+- **Security.cs**: Basic encryption, decryption, and hashing Utilities.
 - **Utilities.cs**: General helper functions used across multiple areas.
-- **Validation.cs**: Input validation utilities for strings, numbers, and other data types.
-- **Windows.cs**: Windows-specific utilities for interacting with the OS.
+- **Validation.cs**: Input validation Utilities for strings, numbers, and other data types.
+- **Windows.cs**: Windows-specific Utilities for interacting with the OS.
 
 ## Installation
 Clone the repository using the following command:
@@ -22,9 +22,9 @@ git clone https://github.com/JooScript/CS_Utilities.git
 Include the required files in your .NET project.
 
 ## Usage
-Each class provides static methods that can be directly used in your application. Below is a basic example of how to use the **clsUtil** class:
+Each class provides static methods that can be directly used in your application. Below is a basic example of how to use the **Helper** class:
 ```csharp
-    clsUtil.CreateFolderIfDoesNotExist("C:\\Users\\Yousef\\Documents\\New Folder");
+    Helper.CreateFolderIfDoesNotExist("C:\\Users\\Yousef\\Documents\\New Folder");
 ```
 For more details on each utility, refer to the inline documentation within the respective files.
 
