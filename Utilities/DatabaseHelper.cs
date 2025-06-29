@@ -16,7 +16,7 @@ namespace Utilities
         }
 
         private static string _connectionString;
-        private static readonly ConcurrentDictionary<string, TableSchema> _schemaCache = new();
+        private static readonly ConcurrentDictionary<string, TableSchema> _schemaCache = new ConcurrentDictionary<string, TableSchema>();
         private static readonly object _lock = new();
 
         public static void Initialize(string connectionString)
@@ -29,7 +29,7 @@ namespace Utilities
             _connectionString = connectionString;
         }
 
-        public static void ClearCache()
+        public static void ClearSchemaCache()
         {
             _schemaCache.Clear();
         }
@@ -200,15 +200,13 @@ namespace Utilities
         /// <param name="backupFilePath">Full path to the .bak file</param>
         /// <param name="overwrite">True to overwrite existing database</param>
         /// <returns>True if restore succeeded, false otherwise</returns>
-        public static bool RestoreDatabase(string backupFilePath, bool overwrite = true)
+        public static bool RestoreDatabase(string backupFilePath, string databaseName, bool overwrite = true)
         {
             if (string.IsNullOrWhiteSpace(backupFilePath) || !File.Exists(backupFilePath))
             {
                 Helper.ErrorLogger(new Exception($"[ERROR] Backup file not found: {backupFilePath}"));
                 return false;
             }
-
-            string databaseName = ExtractAppNameFromConnectionString();
 
             try
             {
@@ -248,6 +246,66 @@ namespace Utilities
                 Helper.ErrorLogger(new Exception("[ERROR] Database restore failed\n", ex), true);
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Retrieves a list of all accessible user databases from the SQL Server instance specified in the connection string.
+        /// </summary>
+        /// <returns>A list of database names sorted alphabetically.</returns>
+        /// <remarks>
+        /// This method:
+        /// 1. Verifies the connection string is initialized
+        /// 2. Creates a new connection without a specific database specified
+        /// 3. Queries the SQL Server system catalog for online user databases (excluding system databases)
+        /// 4. Returns the names of all accessible databases
+        /// 
+        /// Note: The connection string must have sufficient permissions to query sys.databases.
+        /// System databases (master, tempdb, model, msdb) are excluded from the results.
+        /// Only online databases (state = 0) are included.
+        /// </remarks>
+        /// <example>
+        /// <code>
+        /// var databases = ListDatabases();
+        /// foreach (var db in databases)
+        /// {
+        ///     Console.WriteLine(db);
+        /// }
+        /// </code>
+        /// </example>
+        public static List<string> ListDatabases()
+        {
+            _CheckConnectionStringInitialized();
+            List<string> databases = new List<string>();
+
+            var builder = new SqlConnectionStringBuilder(_connectionString);
+            builder.Remove("Initial Catalog");
+            builder.Remove("Database");
+
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                connection.Open();
+
+                // Query to get all user-accessible databases
+                string query = @"
+        SELECT name 
+        FROM sys.databases 
+        WHERE state = 0 -- Only online databases
+        AND database_id > 4 -- Skip system databases (master, tempdb, model, msdb)
+        ORDER BY name";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            databases.Add(reader["name"].ToString());
+                        }
+                    }
+                }
+            }
+
+            return databases;
         }
 
         #region Stored Precedures
@@ -994,3 +1052,18 @@ END";
 
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

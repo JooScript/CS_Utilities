@@ -11,9 +11,9 @@ namespace Utilities
             {
                 if (file.Length > 0)
                 {
-                    string ImageName = Guid.NewGuid().ToString() + DateTime.Now.Year + DateTime.Now.Month + DateTime.Now.Day + ".jpg";
-                    var filePaths = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Uploads/" + folderName, ImageName);
-                    using (var stream = System.IO.File.Create(filePaths))
+                    string ImageName = GenerateGUID() + DateTime.Now.Year + DateTime.Now.Month + DateTime.Now.Day + ".jpg";
+                    var filePaths = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Uploads\" + folderName, ImageName);
+                    using (var stream = File.Create(filePaths))
                     {
                         await file.CopyToAsync(stream);
                         return ImageName;
