@@ -146,7 +146,7 @@ namespace Utilities
                 "real" => "float",
                 "decimal" or "numeric" or "money" or "smallmoney" => "decimal",
                 "datetime" or "datetime2" or "smalldatetime" => "DateTime",
-                "date" => "DateTime",
+                "date" => "DateOnly",
                 "time" => "TimeSpan",
                 "datetimeoffset" => "DateTimeOffset",
                 "char" or "varchar" or "text" or "nchar" or "nvarchar" or "ntext" => "string",
