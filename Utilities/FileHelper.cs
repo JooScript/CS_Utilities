@@ -307,9 +307,9 @@ namespace Utilities
             }
         }
 
-        public static bool StoreToFile(string Content, string sourceFile = "File.txt", string DestinationFolder = null, bool Replace = true)
+        public static bool StoreToFile(string Content, string sourceFile = "File.txt", string restinationFolder = null, bool replace = true)
         {
-            return StoreToFileAsync(Content, sourceFile, DestinationFolder, Replace).GetAwaiter().GetResult();
+            return StoreToFileAsync(Content, sourceFile, restinationFolder, replace).GetAwaiter().GetResult();
         }
 
         public static string ReplaceFileNameWithGUID(string sourceFile)
@@ -317,7 +317,7 @@ namespace Utilities
             return Helper.GenerateGUID() + new FileInfo(sourceFile).Extension;
         }
 
-        public static bool HandleFileToFolder(string destinationFolder, ref string sourceFile, bool replaceWithGuid, Func<string, string, bool> fileOperation)
+        public static bool HandleFileToFolder(string destinationFolder, ref string sourceFile, bool replaceWithGuid, bool replaceOlderFile, Func<string, string, bool> fileOperation)
         {
             if (!Helper.CreateFolderIfDoesNotExist(destinationFolder))
                 return false;
@@ -337,14 +337,24 @@ namespace Utilities
                     string ext = Path.GetExtension(fileName);
                     string destinationFile = Path.Combine(destinationFolder, fileName);
 
-                    int counter = 1;
-                    while (File.Exists(destinationFile))
+                    if (replaceOlderFile)
                     {
-                        string newFileName = $"{nameWithoutExt} ({counter}){ext}";
-                        destinationFile = Path.Combine(destinationFolder, newFileName);
-                        counter++;
+                        if (File.Exists(destinationFile))
+                        {
+                            File.Delete(destinationFile);
+                        }
                     }
+                    else
+                    {
+                        int counter = 1;
+                        while (File.Exists(destinationFile))
+                        {
+                            string newFileName = $"{nameWithoutExt} ({counter}){ext}";
+                            destinationFile = Path.Combine(destinationFolder, newFileName);
+                            counter++;
+                        }
 
+                    }
                     fileName = Path.GetFileName(destinationFile);
                 }
 
@@ -370,18 +380,18 @@ namespace Utilities
             }
         }
 
-        public static bool CopyFileToFolder(string destinationFolder, ref string sourceFile, bool replaceWithGuid = false)
+        public static bool CopyFileToFolder(string destinationFolder, ref string sourceFile, bool replaceFileNameWithGuid = false, bool replaceOlderFile = false)
         {
-            return HandleFileToFolder(destinationFolder, ref sourceFile, replaceWithGuid, (src, dest) =>
+            return HandleFileToFolder(destinationFolder, ref sourceFile, replaceFileNameWithGuid, replaceOlderFile, (src, dest) =>
             {
                 File.Copy(src, dest);
                 return true;
             });
         }
 
-        public static bool MoveFileToFolder(string destinationFolder, ref string sourceFile, bool replaceWithGuid = false)
+        public static bool MoveFileToFolder(string destinationFolder, ref string sourceFile, bool replaceFileNameWithGuid = false, bool replaceOlderFile = false)
         {
-            return HandleFileToFolder(destinationFolder, ref sourceFile, replaceWithGuid, (src, dest) =>
+            return HandleFileToFolder(destinationFolder, ref sourceFile, replaceFileNameWithGuid, replaceOlderFile, (src, dest) =>
             {
                 File.Move(src, dest);
                 return true;

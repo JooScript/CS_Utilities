@@ -2715,11 +2715,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Yousef\\Documents\\GitHub\\CS_Utilities\\Utilities.csproj",
+      "projectUniqueName": "C:\\Users\\Yousef\\Documents\\GitHub\\Utilities\\CS_Utilities\\Utilities.csproj",
       "projectName": "Utilities",
-      "projectPath": "C:\\Users\\Yousef\\Documents\\GitHub\\CS_Utilities\\Utilities.csproj",
+      "projectPath": "C:\\Users\\Yousef\\Documents\\GitHub\\Utilities\\CS_Utilities\\Utilities.csproj",
       "packagesPath": "C:\\Users\\Yousef\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Yousef\\Documents\\GitHub\\CS_Utilities\\obj\\",
+      "outputPath": "C:\\Users\\Yousef\\Documents\\GitHub\\Utilities\\CS_Utilities\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

@@ -130,8 +130,6 @@ namespace Utilities
             return maxNumber <= 0 ? string.Empty : numberToFormat.ToString().PadLeft(maxNumber.ToString().Length, '0');
         }
 
-
-
         #region NumberSystemFormat
 
         public static string FormatBinary(string binary, string separator = " ")

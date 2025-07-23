@@ -867,7 +867,7 @@ END";
 
                     await Task.WhenAll(columnsTask, primaryKeysTask, foreignKeysTask);
 
-                    var tableSchema = new TableSchema
+                    TableSchema tableSchema = new TableSchema
                     {
                         TableName = tableName,
                         Columns = await columnsTask,
@@ -1052,18 +1052,3 @@ END";
 
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -98,7 +98,6 @@ namespace Utilities
             {
                 if (!Directory.Exists(folderPath))
                 {
-
                     return true;
                 }
 
