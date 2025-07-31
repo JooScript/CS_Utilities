@@ -1,30 +1,28 @@
 ﻿using System.Diagnostics;
-using Utilities.Utils;
 
-namespace Utilities.Utils.Win
+namespace Utilities.Utils.Win;
+
+public class WinHelper
 {
-    public class WinHelper
+    public static void LogToWinEventLog(string logMessage, string AppName, EventLogEntryType Type = EventLogEntryType.Error)
     {
-        public static void LogToWinEventLog(string logMessage, string AppName, EventLogEntryType Type = EventLogEntryType.Error)
+        try
         {
-            try
+            if (!EventLog.SourceExists(AppName))
             {
-                if (!EventLog.SourceExists(AppName))
-                {
-                    EventLog.CreateEventSource(AppName, "Application");
-                }
-                EventLog.WriteEntry(AppName, logMessage, Type);
+                EventLog.CreateEventSource(AppName, "Application");
             }
-            catch (Exception logEx)
-            {
-                Helper.ErrorLogger(logEx);
-            }
+            EventLog.WriteEntry(AppName, logMessage, Type);
         }
-
-        public static void LogErrorToWinEventLog(string logMessage, string AppName)
+        catch (Exception logEx)
         {
-            LogToWinEventLog(logMessage, AppName, EventLogEntryType.Error);
+            Helper.ErrorLogger(logEx);
         }
-
     }
+
+    public static void LogErrorToWinEventLog(string logMessage, string AppName)
+    {
+        LogToWinEventLog(logMessage, AppName, EventLogEntryType.Error);
+    }
+
 }
