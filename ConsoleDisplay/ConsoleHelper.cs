@@ -1,7 +1,7 @@
 ﻿using System.Data;
-using Utilities.Utils.Format;
+using Utilities.Format;
 
-namespace Utilities.Utils.ConsoleDisplay;
+namespace Utilities.ConsoleDisplay;
 
 public class ConsoleHelper
 {

@@ -1,4 +1,4 @@
-﻿namespace Utilities.Utils.Randomness;
+﻿namespace Utilities.Randomness;
 
 public static class RandomHelper
 {

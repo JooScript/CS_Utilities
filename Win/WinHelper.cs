@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
+using Utilities.FileActions;
+using Utilities.Utils;
 
-namespace Utilities.Utils.Win;
+namespace Utilities.Win;
 
 public class WinHelper
 {
@@ -16,7 +18,7 @@ public class WinHelper
         }
         catch (Exception logEx)
         {
-            Helper.ErrorLogger(logEx);
+            FileHelper.ErrorLogger(logEx);
         }
     }
 

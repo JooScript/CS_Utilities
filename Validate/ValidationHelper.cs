@@ -1,7 +1,9 @@
-﻿using System.Text.RegularExpressions;
-using Humanizer;
+﻿using Humanizer;
+using System.Text.RegularExpressions;
+using Utilities.FileActions;
+using Utilities.Utils;
 
-namespace Utilities.Utils.Validate;
+namespace Utilities.Validate;
 
 public static class ValidationHelper
 {
@@ -75,7 +77,7 @@ public static class ValidationHelper
         }
         catch (Exception ex)
         {
-            Helper.ErrorLogger(ex);
+            FileHelper.ErrorLogger(ex);
             return false;
         }
     }

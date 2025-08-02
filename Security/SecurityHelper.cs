@@ -1,4 +1,4 @@
-﻿namespace Utilities.Utils.Security;
+﻿namespace Utilities.Security;
 
 public class SecurityHelper
 {

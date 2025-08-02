@@ -2891,9 +2891,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Yousef\\Documents\\GitHub\\Utilities\\CS_Utilities\\Utilities.csproj",
-      "projectName": "Utilities",
-      "projectPath": "C:\\Users\\Yousef\\Documents\\GitHub\\Utilities\\CS_Utilities\\Utilities.csproj",
+      "projectUniqueName": "C:\\Users\\Yousef\\Documents\\GitHub\\Utilities\\CS_Utilities\\Utils.csproj",
+      "projectName": "Utils",
+      "projectPath": "C:\\Users\\Yousef\\Documents\\GitHub\\Utilities\\CS_Utilities\\Utils.csproj",
       "packagesPath": "C:\\Users\\Yousef\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\Yousef\\Documents\\GitHub\\Utilities\\CS_Utilities\\obj\\",
       "projectStyle": "PackageReference",

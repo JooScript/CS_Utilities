@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System.Text;
-using Utilities.Utils.FileActions;
-using Utilities.Utils.Format;
-using Utilities.Utils.Logging;
+using Utilities.FileActions;
 
 namespace Utilities.Utils;
 
@@ -42,58 +39,11 @@ public static class Helper
         };
     }
 
-    public static void ErrorLogger(Exception ex, bool DetailedExp = true, bool exThrow = false)
-    {
-        FileHelper.LogLevel = FileHelper.enLogLevel.Error;
-        Logger FileLogger = new Logger(FileHelper.LogToFile);
-
-        StringBuilder sb = new StringBuilder();
-        sb.AppendLine("");
-
-        if (DetailedExp)
-        {
-            int level = 0;
-            while (ex != null)
-            {
-                sb.AppendLine($"--- Exception Level {level} ---");
-                sb.AppendLine($"Type       : {ex.GetType().FullName}");
-                sb.AppendLine($"Message    : {ex.Message}");
-                sb.AppendLine($"StackTrace : {ex.StackTrace}");
-                ex = ex.InnerException;
-                level++;
-            }
-            FileLogger.Log(sb.ToString());
-        }
-        else
-        {
-            FileLogger.Log(FormatHelper.ExceptionToString(ex));
-        }
-
-        if (exThrow)
-        {
-            throw ex;
-        }
-    }
-
-    public static void InfoLogger(string msg)
-    {
-        FileHelper.LogLevel = FileHelper.enLogLevel.Info;
-        Logger FileLogger = new Logger(FileHelper.LogToFile);
-        FileLogger.Log(msg);
-    }
-
-    public static void WarnLogger(string msg)
-    {
-        FileHelper.LogLevel = FileHelper.enLogLevel.Warn;
-        Logger FileLogger = new Logger(FileHelper.LogToFile);
-        FileLogger.Log(msg);
-    }
-
     public static bool DeleteFolder(string folderPath, bool recursive = false)
     {
         if (string.IsNullOrWhiteSpace(folderPath))
         {
-            ErrorLogger(new ArgumentNullException(nameof(folderPath), "Folder path cannot be null or whitespace."));
+            FileHelper.ErrorLogger(new ArgumentNullException(nameof(folderPath), "Folder path cannot be null or whitespace."));
             return false;
         }
 
@@ -109,7 +59,7 @@ public static class Helper
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
         {
-            ErrorLogger(ex);
+            FileHelper.ErrorLogger(ex);
             return false;
         }
     }
@@ -125,7 +75,7 @@ public static class Helper
             }
             catch (Exception ex)
             {
-                ErrorLogger(ex);
+                FileHelper.ErrorLogger(ex);
                 return false;
             }
         }

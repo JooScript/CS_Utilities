@@ -1,7 +1,7 @@
 ﻿using System.Text;
-using Utilities.Utils.Validate;
+using Utilities.Validate;
 
-namespace Utilities.Utils.Format;
+namespace Utilities.Format;
 
 public static class NumberSystemConverterHelper
 {

@@ -4,10 +4,10 @@ using Microsoft.SqlServer.Management.Smo;
 using System.Collections.Concurrent;
 using System.Data;
 using System.Text;
+using Utilities.FileActions;
 using Utilities.Utils;
-using Utilities.Utils.FileActions;
 
-namespace Utilities.Utils.Database;
+namespace Utilities.Database;
 
 public static class DatabaseHelper
 {
@@ -73,12 +73,12 @@ public static class DatabaseHelper
         }
         catch (ArgumentException ex)
         {
-            Helper.ErrorLogger(new Exception("Invalid connection string format", ex));
+            FileHelper.ErrorLogger(new Exception("Invalid connection string format", ex));
             throw;
         }
         catch (Exception ex)
         {
-            Helper.ErrorLogger(new Exception("Error extracting app name from connection string", ex));
+            FileHelper.ErrorLogger(new Exception("Error extracting app name from connection string", ex));
             throw;
         }
     }
@@ -172,13 +172,13 @@ public static class DatabaseHelper
 
             if (!File.Exists(backupPath))
             {
-                Helper.ErrorLogger(new IOException($"Backup file was not created at: {backupPath}"));
+                FileHelper.ErrorLogger(new IOException($"Backup file was not created at: {backupPath}"));
             }
 
         }
         catch (Exception ex)
         {
-            Helper.ErrorLogger(new Exception("[ERROR] Database backup failed", ex), true);
+            FileHelper.ErrorLogger(new Exception("[ERROR] Database backup failed", ex), true);
             return false;
         }
         finally
@@ -206,7 +206,7 @@ public static class DatabaseHelper
     {
         if (string.IsNullOrWhiteSpace(backupFilePath) || !File.Exists(backupFilePath))
         {
-            Helper.ErrorLogger(new Exception($"[ERROR] Backup file not found: {backupFilePath}"));
+            FileHelper.ErrorLogger(new Exception($"[ERROR] Backup file not found: {backupFilePath}"));
             return false;
         }
 
@@ -245,7 +245,7 @@ public static class DatabaseHelper
         }
         catch (Exception ex)
         {
-            Helper.ErrorLogger(new Exception("[ERROR] Database restore failed\n", ex), true);
+            FileHelper.ErrorLogger(new Exception("[ERROR] Database restore failed\n", ex), true);
             return false;
         }
     }
@@ -342,12 +342,12 @@ AND o.name = @ProcedureName";
         }
         catch (SqlException ex)
         {
-            Helper.ErrorLogger(ex);
+            FileHelper.ErrorLogger(ex);
             return false;
         }
         catch (Exception ex)
         {
-            Helper.ErrorLogger(ex);
+            FileHelper.ErrorLogger(ex);
             return false;
         }
     }
@@ -404,14 +404,14 @@ GO";
         }
         catch (SqlException sqlEx)
         {
-            Helper.ErrorLogger(new Exception(
+            FileHelper.ErrorLogger(new Exception(
                 $"Failed to create {procedureName} procedure. " +
                 $"SQL Error: {sqlEx.Message}", sqlEx));
             return false;
         }
         catch (Exception ex)
         {
-            Helper.ErrorLogger(new Exception($"Unexpected error creating {procedureName} procedure. ", ex));
+            FileHelper.ErrorLogger(new Exception($"Unexpected error creating {procedureName} procedure. ", ex));
             return false;
         }
     }
@@ -465,7 +465,7 @@ END";
         }
         catch (SqlException sqlEx)
         {
-            Helper.ErrorLogger(new Exception(
+            FileHelper.ErrorLogger(new Exception(
                 $"Failed to delete {procedureName} procedure. " +
                 $"Database: {DatabaseName}. " +
                 $"SQL Error: {sqlEx.Message}", sqlEx));
@@ -473,7 +473,7 @@ END";
         }
         catch (Exception ex)
         {
-            Helper.ErrorLogger(new Exception(
+            FileHelper.ErrorLogger(new Exception(
                 $"Unexpected error deleting {procedureName} procedure. " +
                 $"Database: {DatabaseName}", ex));
             return false;
@@ -634,12 +634,12 @@ END";
         }
         catch (SqlException sqlEx)
         {
-            Helper.ErrorLogger(sqlEx);
+            FileHelper.ErrorLogger(sqlEx);
             throw;
         }
         catch (Exception ex)
         {
-            Helper.ErrorLogger(ex);
+            FileHelper.ErrorLogger(ex);
             throw;
         }
 
@@ -723,7 +723,7 @@ END";
         }
         catch (Exception ex)
         {
-            Helper.ErrorLogger(ex, true);
+            FileHelper.ErrorLogger(ex, true);
         }
 
         return columns;
@@ -766,7 +766,7 @@ END";
         }
         catch (Exception ex)
         {
-            Helper.ErrorLogger(ex);
+            FileHelper.ErrorLogger(ex);
             throw; // Consider whether to rethrow or return empty list
         }
 
@@ -839,7 +839,7 @@ END";
         }
         catch (Exception ex)
         {
-            Helper.ErrorLogger(ex);
+            FileHelper.ErrorLogger(ex);
             throw;
         }
 
@@ -891,7 +891,7 @@ END";
         }
         catch (Exception ex)
         {
-            Helper.ErrorLogger(ex);
+            FileHelper.ErrorLogger(ex);
             throw;
         }
 

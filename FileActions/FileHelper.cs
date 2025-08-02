@@ -1,9 +1,13 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
+using System.Text;
 using System.Text.Json;
+using Utilities.Format;
+using Utilities.Logging;
+using Utilities.Utils;
 
-namespace Utilities.Utils.FileActions;
+namespace Utilities.FileActions;
 
 public static class FileHelper
 {
@@ -207,6 +211,48 @@ public static class FileHelper
         }
     }
 
+    public static void ErrorLogger(Exception ex, bool DetailedExp = true)
+    {
+        LogLevel = enLogLevel.Error;
+        Logger FileLogger = new Logger(LogToFile);
+
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine("");
+
+        if (DetailedExp)
+        {
+            int level = 0;
+            while (ex != null)
+            {
+                sb.AppendLine($"--- Exception Level {level} ---");
+                sb.AppendLine($"Type       : {ex.GetType().FullName}");
+                sb.AppendLine($"Message    : {ex.Message}");
+                sb.AppendLine($"StackTrace : {ex.StackTrace}");
+                ex = ex.InnerException;
+                level++;
+            }
+            FileLogger.Log(sb.ToString());
+        }
+        else
+        {
+            FileLogger.Log(FormatHelper.ExceptionToString(ex));
+        }
+    }
+
+    public static void InfoLogger(string msg)
+    {
+        LogLevel = enLogLevel.Info;
+        Logger FileLogger = new Logger(LogToFile);
+        FileLogger.Log(msg);
+    }
+
+    public static void WarnLogger(string msg)
+    {
+        LogLevel = enLogLevel.Warn;
+        Logger FileLogger = new Logger(LogToFile);
+        FileLogger.Log(msg);
+    }
+
     #endregion
 
     #region Username and Password
@@ -233,7 +279,7 @@ public static class FileHelper
         }
         catch (Exception ex)
         {
-            Helper.ErrorLogger(ex);
+            FileHelper.ErrorLogger(ex);
             return false;
         }
     }
@@ -267,7 +313,7 @@ public static class FileHelper
         }
         catch (Exception ex)
         {
-            Helper.ErrorLogger(ex);
+            FileHelper.ErrorLogger(ex);
             return false;
         }
     }
@@ -302,7 +348,7 @@ public static class FileHelper
         }
         catch (Exception logEx)
         {
-            Helper.ErrorLogger(logEx);
+            ErrorLogger(logEx);
             return false;
         }
     }
@@ -370,12 +416,12 @@ public static class FileHelper
         }
         catch (IOException iox)
         {
-            Helper.ErrorLogger(iox);
+            FileHelper.ErrorLogger(iox);
             return false;
         }
         catch (UnauthorizedAccessException ex)
         {
-            Helper.ErrorLogger(ex);
+            FileHelper.ErrorLogger(ex);
             return false;
         }
     }
@@ -402,7 +448,7 @@ public static class FileHelper
     {
         if (string.IsNullOrWhiteSpace(fileLocation))
         {
-            Helper.ErrorLogger(new ArgumentNullException(nameof(fileLocation), "File path cannot be null or whitespace."));
+            FileHelper.ErrorLogger(new ArgumentNullException(nameof(fileLocation), "File path cannot be null or whitespace."));
             return false;
         }
 
@@ -410,7 +456,7 @@ public static class FileHelper
         {
             if (!File.Exists(fileLocation))
             {
-                Helper.ErrorLogger(new FileNotFoundException("File not found", fileLocation));
+                FileHelper.ErrorLogger(new FileNotFoundException("File not found", fileLocation));
                 return false;
             }
 
@@ -419,7 +465,7 @@ public static class FileHelper
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
         {
-            Helper.ErrorLogger(ex);
+            FileHelper.ErrorLogger(ex);
             return false;
         }
     }
@@ -471,7 +517,7 @@ public static class FileHelper
         }
         catch (Exception ex)
         {
-            Helper.ErrorLogger(ex);
+            FileHelper.ErrorLogger(ex);
             return string.Empty;
         }
     }

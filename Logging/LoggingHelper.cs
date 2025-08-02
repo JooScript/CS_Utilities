@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
 
-namespace Utilities.Utils.Logging;
+namespace Utilities.Logging;
 
 /// <summary>
 /// Helper class for standardized logging operations.
