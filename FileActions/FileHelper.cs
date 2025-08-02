@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using Microsoft.IdentityModel.Tokens;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
@@ -82,7 +83,7 @@ public static class FileHelper
 
             try
             {
-                var normalizedPath = Path.GetFullPath(value); // Resolves relative paths
+                var normalizedPath = Path.GetFullPath(value);
                 lock (_logDirLock)
                 {
                     Helper.CreateFolderIfDoesNotExist(normalizedPath);
@@ -211,8 +212,17 @@ public static class FileHelper
         }
     }
 
-    public static void ErrorLogger(Exception ex, bool DetailedExp = true)
+    public static void ErrorLogger(Exception ex, bool DetailedExp = true, bool exThrow = true, string logDir = null)
     {
+        if (logDir.IsNullOrEmpty())
+        {
+            LogDirectory = _logDirectory;
+        }
+        else
+        {
+            LogDirectory = logDir;
+        }
+
         LogLevel = enLogLevel.Error;
         Logger FileLogger = new Logger(LogToFile);
 
@@ -237,6 +247,9 @@ public static class FileHelper
         {
             FileLogger.Log(FormatHelper.ExceptionToString(ex));
         }
+
+        if (exThrow) throw ex;
+
     }
 
     public static void InfoLogger(string msg)

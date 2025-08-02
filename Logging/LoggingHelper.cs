@@ -1,21 +1,23 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+using Utilities.FileActions;
 
 namespace Utilities.Logging;
 
 /// <summary>
 /// Helper class for standardized logging operations.
 /// </summary>
-/// <typeparam name="T">The type whose name will be included in log messages.</typeparam>
-public class LoggingHelper<T>
+/// <typeparam name="Cls">The type whose name will be included in log messages.</typeparam>
+public class LoggingHelper<Cls>
 {
-    private readonly ILogger<T> _logger;
+    private readonly ILogger<Cls> _logger;
 
     /// <summary>
     /// Initializes a new instance of the LogHelper class.
     /// </summary>
     /// <param name="logger">The logger instance.</param>
     /// <exception cref="ArgumentNullException">Thrown when logger is null.</exception>
-    public LoggingHelper(ILogger<T> logger)
+    public LoggingHelper(ILogger<Cls> logger)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
@@ -32,7 +34,7 @@ public class LoggingHelper<T>
         if (_logger.IsEnabled(LogLevel.Debug))
         {
             _logger.LogDebug("Entering {MethodName} for type {TypeName}",
-                methodName, typeof(T).Name);
+                methodName, typeof(Cls).Name);
         }
     }
 
@@ -50,7 +52,7 @@ public class LoggingHelper<T>
         {
             _logger.LogDebug(
                 "{MethodName} successfully retrieved {Count} items of type {TypeName}",
-                methodName, count, typeof(T).Name);
+                methodName, count, typeof(Cls).Name);
         }
     }
 
@@ -70,7 +72,7 @@ public class LoggingHelper<T>
                 "{MethodName} did not find {ItemIdentifier} of type {TypeName}",
                 methodName,
                 id.HasValue ? $"item with ID {id.Value}" : "matching item",
-                typeof(T).Name);
+                typeof(Cls).Name);
         }
     }
 
@@ -81,15 +83,15 @@ public class LoggingHelper<T>
     /// <param name="ex">The exception that occurred.</param>
     public void LogError(string methodName, Exception ex)
     {
-        if (string.IsNullOrEmpty(methodName))
-            throw new ArgumentException("Method name cannot be null or empty", nameof(methodName));
+        if (methodName.IsNullOrEmpty()) throw new ArgumentException("Method name cannot be null or empty", nameof(methodName));
 
-        if (ex == null)
-            throw new ArgumentNullException(nameof(ex));
+        if (ex == null) throw new ArgumentNullException(nameof(ex));
 
-        _logger.LogError(ex,
-            "Error in {MethodName} for type {TypeName}: {ErrorMessage}",
-            methodName, typeof(T).Name, ex.Message);
+        string clsName = typeof(Cls).Name;
+
+        _logger.LogError(ex, $"Error in {methodName} for type {clsName}: {ex.Message}");
+
+        FileHelper.ErrorLogger(ex, true, false, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), $"{clsName}_ErrorLogs"));
     }
 
     /// <summary>
@@ -107,7 +109,7 @@ public class LoggingHelper<T>
 
         _logger.LogWarning(
             "Warning in {MethodName} for type {TypeName}: {WarningMessage}",
-            methodName, typeof(T).Name, warningMessage);
+            methodName, typeof(Cls).Name, warningMessage);
     }
 
     /// <summary>
@@ -124,7 +126,7 @@ public class LoggingHelper<T>
         {
             _logger.LogDebug(
                 "{MethodName} for type {TypeName} executed in {DurationMs}ms",
-                methodName, typeof(T).Name, duration.TotalMilliseconds);
+                methodName, typeof(Cls).Name, duration.TotalMilliseconds);
         }
     }
 
