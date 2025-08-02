@@ -223,6 +223,11 @@ public static class FileHelper
             LogDirectory = logDir;
         }
 
+        if (ex == null)
+        {
+            throw new ArgumentNullException(nameof(ex));
+        }
+
         LogLevel = enLogLevel.Error;
         Logger FileLogger = new Logger(LogToFile);
 
