@@ -2,7 +2,7 @@
 using System.Text.Json.Nodes;
 using Newtonsoft.Json;
 
-namespace Utilities.Json;
+namespace Utils.Json;
 
 public static class JsonHelper
 {

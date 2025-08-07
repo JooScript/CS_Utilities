@@ -1,8 +1,8 @@
 ﻿using System.Text;
 using Humanizer;
-using Utilities.Validate;
+using Utils.Validate;
 
-namespace Utilities.Format;
+namespace Utils.Format;
 
 public class FormatHelper
 {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Utilities.FileActions;
+using Utils.FileActions;
 
-namespace Utilities.Utils;
+namespace Utils.General;
 
 public static class Helper
 {

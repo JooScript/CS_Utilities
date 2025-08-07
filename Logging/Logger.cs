@@ -1,4 +1,4 @@
-﻿namespace Utilities.Logging;
+﻿namespace Utils.Logging;
 
 internal class Logger
 {

@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Utilities.FileActions;
+using Utils.FileActions;
 
-namespace Utilities.Logging;
+namespace Utils.Logging;
 
 /// <summary>
 /// Helper class for standardized logging operations.
@@ -32,10 +32,8 @@ public class LoggingHelper<Cls>
             throw new ArgumentException("Method name cannot be null or empty", nameof(methodName));
 
         if (_logger.IsEnabled(LogLevel.Debug))
-        {
-            _logger.LogDebug("Entering {MethodName} for type {TypeName}",
-                methodName, typeof(Cls).Name);
-        }
+            _logger.LogDebug($"Entering {methodName} for type {typeof(Cls).Name}");
+
     }
 
     /// <summary>
@@ -49,11 +47,7 @@ public class LoggingHelper<Cls>
             throw new ArgumentException("Method name cannot be null or empty", nameof(methodName));
 
         if (_logger.IsEnabled(LogLevel.Debug))
-        {
-            _logger.LogDebug(
-                "{MethodName} successfully retrieved {Count} items of type {TypeName}",
-                methodName, count, typeof(Cls).Name);
-        }
+            _logger.LogDebug($"{methodName} successfully retrieved {count} items of type {typeof(Cls).Name}");
     }
 
     /// <summary>
@@ -107,9 +101,7 @@ public class LoggingHelper<Cls>
         if (string.IsNullOrEmpty(warningMessage))
             throw new ArgumentException("Warning message cannot be null or empty", nameof(warningMessage));
 
-        _logger.LogWarning(
-            "Warning in {MethodName} for type {TypeName}: {WarningMessage}",
-            methodName, typeof(Cls).Name, warningMessage);
+        _logger.LogWarning($"Warning in {methodName} for type {typeof(Cls).Name}: {warningMessage}");
     }
 
     /// <summary>
@@ -123,11 +115,7 @@ public class LoggingHelper<Cls>
             throw new ArgumentException("Method name cannot be null or empty", nameof(methodName));
 
         if (_logger.IsEnabled(LogLevel.Debug))
-        {
-            _logger.LogDebug(
-                "{MethodName} for type {TypeName} executed in {DurationMs}ms",
-                methodName, typeof(Cls).Name, duration.TotalMilliseconds);
-        }
+            _logger.LogDebug($"{methodName} for type {typeof(Cls).Name} executed in {duration.TotalMilliseconds}ms");
     }
 
 }

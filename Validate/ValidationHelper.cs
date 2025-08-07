@@ -1,9 +1,9 @@
 ﻿using Humanizer;
 using System.Text.RegularExpressions;
-using Utilities.FileActions;
-using Utilities.Utils;
+using Utils.FileActions;
+using Utils.General;
 
-namespace Utilities.Validate;
+namespace Utils.Validate;
 
 public static class ValidationHelper
 {

@@ -4,10 +4,10 @@ using Microsoft.SqlServer.Management.Smo;
 using System.Collections.Concurrent;
 using System.Data;
 using System.Text;
-using Utilities.FileActions;
-using Utilities.Utils;
+using Utils.FileActions;
+using Utils.General;
 
-namespace Utilities.Database;
+namespace Utils.Db;
 
 public static class DatabaseHelper
 {

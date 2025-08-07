@@ -1,8 +1,7 @@
 ﻿using System.Diagnostics;
-using Utilities.FileActions;
-using Utilities.Utils;
+using Utils.FileActions;
 
-namespace Utilities.Win;
+namespace Utils.Win;
 
 public class WinHelper
 {
