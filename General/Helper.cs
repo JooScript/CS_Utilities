@@ -66,6 +66,11 @@ public static class Helper
 
     public static bool CreateFolderIfDoesNotExist(string FolderPath)
     {
+        if (String.IsNullOrEmpty(FolderPath))
+        {
+            return false;
+        }
+
         if (!Directory.Exists(FolderPath))
         {
             try
@@ -80,6 +85,7 @@ public static class Helper
             }
         }
         return true;
+
     }
 
     public static string GetCSharpType(string sqlType)

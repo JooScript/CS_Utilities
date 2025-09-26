@@ -384,7 +384,7 @@ public static class FileHelper
         return Helper.GenerateGUID() + new FileInfo(sourceFile).Extension;
     }
 
-    public static bool HandleFileToFolder(string destinationFolder, ref string sourceFile, bool replaceWithGuid, bool replaceOlderFile, Func<string, string, bool> fileOperation)
+    private static bool HandleFileToFolder(string destinationFolder, ref string sourceFile, bool replaceWithGuid, bool replaceOlderFile, Func<string, string, bool> fileOperation)
     {
         if (!Helper.CreateFolderIfDoesNotExist(destinationFolder))
             return false;

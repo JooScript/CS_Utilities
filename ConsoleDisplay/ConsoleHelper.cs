@@ -1,10 +1,86 @@
 ﻿using System.Data;
+using Utils.DS.TreesDS.BinTreeDS;
+using Utils.DS.TreesDS.GenTreeDS;
 using Utils.Format;
 
 namespace Utils.ConsoleDisplay;
 
-public class ConsoleHelper
+public static class ConsoleHelper
 {
+    #region Loaders
+
+    public static void ShowSpinner(CancellationToken token, string word = "Loading")
+    {
+        string[] sequence = { "|", "/", "-", "\\" };
+        int counter = 0;
+
+        while (!token.IsCancellationRequested)
+        {
+            Console.Write($"\r{sequence[counter++ % sequence.Length]} {word}...");
+            Thread.Sleep(100);
+        }
+    }
+
+    public static void ShowDotsLoader(int durationMs = 4000)
+    {
+        var endTime = DateTime.Now.AddMilliseconds(durationMs);
+
+        while (DateTime.Now < endTime)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                Console.Write("\rLoading" + new string('.', i));
+                Thread.Sleep(500);
+            }
+        }
+        Console.WriteLine("\rDone!      ");
+    }
+
+    public static void ShowProgressBar(int total = 20, int delayMs = 100)
+    {
+        for (int i = 0; i <= total; i++)
+        {
+            Console.Write($"\r[{new string('#', i)}{new string(' ', total - i)}] {i * 100 / total}%");
+            Thread.Sleep(delayMs);
+        }
+        Console.WriteLine("\nCompleted!");
+    }
+
+    #endregion
+
+    #region Tree Printing
+
+    public static void PrintTree<T>(BinaryTreeNode<T> root, int space = 0)
+    {
+        int COUNT = 10;  // Distance between levels to adjust the visual representation
+        if (root == null)
+            return;
+
+        space += COUNT;
+        PrintTree(root.Right, space); // Print right subtree first, then root, and left subtree last
+
+        Console.WriteLine();
+        for (int i = COUNT; i < space; i++)
+            Console.Write(" ");
+        Console.WriteLine(root.Value); // Print the current node after space
+
+        PrintTree(root.Left, space); // Recur on the left child
+    }
+
+    public static void PrintTree<T>(BinaryTree<T> binaryTree, int space = 0) => PrintTree(binaryTree.Root, space);
+
+    public static void PrintTree<T>(TreeNode<T> root, string indent = " ")
+    {
+        Console.WriteLine(indent + root.Value);
+        foreach (var child in root.Children)
+        {
+            PrintTree(child, indent + "  ");
+        }
+    }
+
+    public static void PrintTree<T>(Tree<T> genTree, string indent = " ") => PrintTree(genTree.Root, indent);
+
+    #endregion
 
     /// <summary>
     /// Prints a colored status message with icon based on success/failure
@@ -91,10 +167,9 @@ public class ConsoleHelper
         {
             for (int i = 0; i < list.Count; i++)
             {
-                Console.Write($"[{FormatHelper.FormatNumbers(i + 1, list.Count)}] {list[i]}  ");
+                Console.Write($"{list[i]} ");
             }
         }
-
 
     }
 
@@ -103,6 +178,32 @@ public class ConsoleHelper
         Console.BackgroundColor = color;
         Console.WriteLine(message);
         Console.ResetColor();
+    }
+
+    public static void WriteMenuOption(int number, string description)
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write($"{number}: ");
+        Console.ResetColor();
+        Console.WriteLine(description);
+    }
+
+    public static void ShowError(string message)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine($"✘ {message}");
+        Console.ResetColor();
+    }
+
+    public static void PrintSectionHeader(string title)
+    {
+        var originalColor = Console.ForegroundColor;
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine();
+        Console.WriteLine(new string('─', 50));
+        Console.WriteLine($" {title.ToUpper()}");
+        Console.WriteLine(new string('─', 50));
+        Console.ForegroundColor = originalColor;
     }
 
 }

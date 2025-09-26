@@ -132,7 +132,7 @@ public static class DatabaseHelper
         ServerConnection serverConnection = null;
         string backDir = $"C:\\BackupTemp";
         string databaseName = ExtractAppNameFromConnectionString();
-        string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+        string timestamp = $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}";
         string typeStr = type.ToString();
         string fileName = $"{databaseName}_{typeStr}_{timestamp}.bak";
         string backupPath = Path.Combine(backDir, fileName);
