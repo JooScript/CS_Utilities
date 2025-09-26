@@ -7,11 +7,11 @@ namespace Utils.Win;
 public class WinHelper
 {
 
-    public static bool SaveToRegistry(string KeyName, string KeyValue)
+    public static bool SaveToRegistry(string KeyName, string KeyValue, string softwareName)
     {
         try
         {
-            Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\YourSoftware", KeyName, KeyValue, RegistryValueKind.String);
+            Registry.SetValue(@$"HKEY_LOCAL_MACHINE\SOFTWARE\{softwareName}", KeyName, KeyValue, RegistryValueKind.String);
             return true;
         }
         catch (Exception ex)
