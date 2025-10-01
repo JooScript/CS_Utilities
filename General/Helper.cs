@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
+using System.Data;
+using System.Reflection;
 using Utils.FileActions;
 
 namespace Utils.General;
@@ -157,6 +159,33 @@ public static class Helper
             case "long": return "0L";
             default: return "null";
         }
+    }
+
+    public static DataTable ToDataTable<T>(List<T> items)
+    {
+        DataTable dataTable = new DataTable(typeof(T).Name);
+
+        // Get all the properties of T
+        PropertyInfo[] props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+        // Add columns to DataTable
+        foreach (var prop in props)
+        {
+            dataTable.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
+        }
+
+        // Add rows
+        foreach (T item in items)
+        {
+            var values = new object[props.Length];
+            for (int i = 0; i < props.Length; i++)
+            {
+                values[i] = props[i].GetValue(item, null) ?? DBNull.Value;
+            }
+            dataTable.Rows.Add(values);
+        }
+
+        return dataTable;
     }
 
 }
