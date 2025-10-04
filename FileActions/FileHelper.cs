@@ -341,6 +341,17 @@ public static class FileHelper
 
     #endregion
 
+    public static bool Rename(string path, string newName)
+    {
+        if (File.Exists(path))
+        {
+            string newPath = Path.Combine(Path.GetDirectoryName(path), newName, Path.GetExtension(path));
+            File.Move(path, newPath);
+            return true;
+        }
+        return false;
+    }
+
     public static async Task<bool> StoreToFileAsync(string Content, string sourceFile = "File.txt", string DestinationFolder = null, bool Replace = true)
     {
         if (string.IsNullOrEmpty(DestinationFolder))
@@ -384,7 +395,13 @@ public static class FileHelper
         return Helper.GenerateGUID() + new FileInfo(sourceFile).Extension;
     }
 
-    private static bool HandleFileToFolder(string destinationFolder, ref string sourceFile, bool replaceWithGuid, bool replaceOlderFile, Func<string, string, bool> fileOperation)
+    public static string ReplaceFileName(string sourceFile, string newName)
+    {
+        return newName + new FileInfo(sourceFile).Extension;
+    }
+
+
+    private static bool HandleFileToFolder(string destinationFolder, ref string sourceFile, bool replaceWithGuid, bool replaceOlderFile, bool renameFile, string newName, Func<string, string, bool> fileOperation)
     {
         if (!Helper.CreateFolderIfDoesNotExist(destinationFolder))
             return false;
@@ -425,6 +442,11 @@ public static class FileHelper
                 fileName = Path.GetFileName(destinationFile);
             }
 
+            if (renameFile)
+            {
+                fileName = ReplaceFileName(sourceFile, newName);
+            }
+
             string finalDestination = Path.Combine(destinationFolder, fileName);
 
             if (!fileOperation(sourceFile, finalDestination))
@@ -447,18 +469,18 @@ public static class FileHelper
         }
     }
 
-    public static bool CopyFileToFolder(string destinationFolder, ref string sourceFile, bool replaceFileNameWithGuid = false, bool replaceOlderFile = false)
+    public static bool CopyFileToFolder(string destinationFolder, ref string sourceFile, bool replaceFileNameWithGuid = false, bool replaceOlderFile = false, bool renameFile = false, string newName = "")
     {
-        return HandleFileToFolder(destinationFolder, ref sourceFile, replaceFileNameWithGuid, replaceOlderFile, (src, dest) =>
+        return HandleFileToFolder(destinationFolder, ref sourceFile, replaceFileNameWithGuid, replaceOlderFile, renameFile, newName, (src, dest) =>
         {
             File.Copy(src, dest);
             return true;
         });
     }
 
-    public static bool MoveFileToFolder(string destinationFolder, ref string sourceFile, bool replaceFileNameWithGuid = false, bool replaceOlderFile = false)
+    public static bool MoveFileToFolder(string destinationFolder, ref string sourceFile, bool replaceFileNameWithGuid = false, bool replaceOlderFile = false, bool renameFile = false, string newName = "")
     {
-        return HandleFileToFolder(destinationFolder, ref sourceFile, replaceFileNameWithGuid, replaceOlderFile, (src, dest) =>
+        return HandleFileToFolder(destinationFolder, ref sourceFile, replaceFileNameWithGuid, replaceOlderFile, renameFile, newName, (src, dest) =>
         {
             File.Move(src, dest);
             return true;
