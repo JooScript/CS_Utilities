@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Utils.Format;
 using Utils.General;
 using Utils.Logging;
@@ -340,6 +341,33 @@ public static class FileHelper
     }
 
     #endregion
+
+    public static string SanitizeFileName(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return "untitled";
+
+        // Normalize and replace invalid chars
+        string sanitized = input.Trim().ToLower();
+
+        // Replace spaces with hyphens
+        sanitized = sanitized.Replace(" ", "-");
+
+        // Remove all characters invalid for filenames or file paths
+        sanitized = Regex.Replace(sanitized, @"[\\/:*?""<>|]", "");
+
+        // Remove punctuation (commas, periods, etc.) that might break names
+        sanitized = Regex.Replace(sanitized, @"[.,;‘’'“”—–_]+", "-");
+
+        // Collapse multiple hyphens
+        sanitized = Regex.Replace(sanitized, @"-+", "-");
+
+        // Ensure filename not too long (Windows max path limit considerations)
+        if (sanitized.Length > 150)
+            sanitized = sanitized.Substring(0, 150);
+
+        return sanitized.Trim('-');
+    }
 
     public static bool Rename(string path, string newName)
     {

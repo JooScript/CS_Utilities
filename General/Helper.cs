@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Data;
 using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
 using Utils.FileActions;
 
 namespace Utils.General;
@@ -186,6 +188,46 @@ public static class Helper
         }
 
         return dataTable;
+    }
+
+    /// <summary>
+    /// Cleans a string into a URL-safe slug (e.g. for filenames, SEO URLs, etc.).
+    /// </summary>
+    /// <param name="input">The text to clean.</param>
+    /// <returns>A cleaned, lowercase, hyphen-separated string.</returns>
+    public static string CleanToSlug(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return string.Empty;
+
+        // Normalize and convert to lowercase
+        string slug = input.Trim().ToLowerInvariant();
+
+        // Remove diacritics (e.g., café → cafe)
+        slug = RemoveDiacritics(slug);
+
+        // Replace non-alphanumeric characters with a single hyphen
+        slug = Regex.Replace(slug, @"[^a-z0-9]+", "-");
+
+        // Remove leading or trailing hyphens
+        slug = Regex.Replace(slug, @"^-+|-+$", "");
+
+        return slug;
+    }
+
+    private static string RemoveDiacritics(string text)
+    {
+        var normalized = text.Normalize(NormalizationForm.FormD);
+        var builder = new StringBuilder();
+
+        foreach (char c in normalized)
+        {
+            var unicodeCategory = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
+            if (unicodeCategory != System.Globalization.UnicodeCategory.NonSpacingMark)
+                builder.Append(c);
+        }
+
+        return builder.ToString().Normalize(NormalizationForm.FormC);
     }
 
 }
