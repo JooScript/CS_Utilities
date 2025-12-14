@@ -8,6 +8,8 @@
 
 	<ItemGroup>
 		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+		<PackageReference Include="LibGit2Sharp" Version="0.31.0" />
+		<PackageReference Include="Octokit" Version="14.0.0" />
 		<PackageReference Include="Humanizer.Core" Version="3.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.3" />
