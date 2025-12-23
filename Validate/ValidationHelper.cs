@@ -7,6 +7,32 @@ namespace Utils.Validate;
 
 public static class ValidationHelper
 {
+    public static async Task<bool> HasInternetConnectionAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            using HttpClient? client = new HttpClient
+            {
+                Timeout = TimeSpan.FromSeconds(3)
+            };
+
+            using HttpRequestMessage? request = new HttpRequestMessage(
+                HttpMethod.Head,
+                "https://www.cloudflare.com/cdn-cgi/trace");
+
+            using HttpResponseMessage? response = await client.SendAsync(
+                request,
+                HttpCompletionOption.ResponseHeadersRead,
+                cancellationToken);
+
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     /// <summary>
     /// Validates an age value with optional range constraints
     /// </summary>
