@@ -226,7 +226,6 @@ public static class ValidationHelper
         return "aeiou".IndexOf(char.ToLowerInvariant(c)) >= 0;
     }
 
-
     /// <summary>
     /// Validates that a date is within a specific range.
     /// </summary>
