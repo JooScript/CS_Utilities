@@ -1,5 +1,7 @@
 ﻿using LibGit2Sharp;
 using Octokit;
+using Utils.FileActions;
+using Utils.General;
 using GitCredentials = LibGit2Sharp.UsernamePasswordCredentials;
 using GitHubCredentials = Octokit.Credentials;
 using GitHubRepository = Octokit.Repository;
@@ -27,22 +29,76 @@ public class GitHub
 
     #region GIT (LibGit2Sharp)
 
+    private static void ValidateRepoUrl(string repoUrl)
+    {
+        if (string.IsNullOrWhiteSpace(repoUrl))
+            throw new ArgumentException("Repository URL cannot be null or empty.", nameof(repoUrl));
+
+        // HTTPS validation
+        if (Uri.TryCreate(repoUrl, UriKind.Absolute, out var uri))
+        {
+            if ((uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp) &&
+                uri.Host.Equals("github.com", StringComparison.OrdinalIgnoreCase) &&
+                uri.AbsolutePath.Count(c => c == '/') >= 2)
+            {
+                return;
+            }
+        }
+
+        // SSH validation (git@github.com:owner/repo.git)
+        var sshPattern = @"^git@github\.com:[\w\.-]+\/[\w\.-]+(\.git)?$";
+        if (System.Text.RegularExpressions.Regex.IsMatch(repoUrl, sshPattern))
+        {
+            return;
+        }
+
+        throw new ArgumentException($"Invalid GitHub repository URL format: '{repoUrl}'", nameof(repoUrl));
+    }
+
+
     public void CloneIfMissing(string repoUrl, string localPath)
     {
+        ValidateRepoUrl(repoUrl);
+
         if (!Directory.Exists(localPath))
         {
+            Helper.CreateFolderIfDoesNotExist(localPath);
+
             var co = new CloneOptions();
 
-            co.FetchOptions.CredentialsProvider = (_url, _user, _cred) =>
-                new UsernamePasswordCredentials
-                {
-                    Username = "token",
-                    Password = _Token
-                };
+            co.FetchOptions.CredentialsProvider =
+                (_url, _user, _cred)
+                => new UsernamePasswordCredentials
+                { Username = "token", Password = _Token };
 
             GitRepository.Clone(repoUrl, localPath, co);
+            return;
+        }
+
+        if (!GitRepository.IsValid(localPath))
+        {
+            throw new InvalidOperationException(
+                $"Directory '{localPath}' exists but is not a valid Git repository.");
+        }
+
+        using var repo = new GitRepository(localPath);
+
+        Remote? origin = repo.Network.Remotes["origin"];
+
+        if (origin == null)
+        {
+            throw new InvalidOperationException(
+                $"Repository at '{localPath}' does not contain an 'origin' remote.");
+        }
+
+        if (!string.Equals(origin.Url, repoUrl, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                $"Repository remote mismatch. Expected '{repoUrl}' but found '{origin.Url}'.");
         }
     }
+
+
 
     public GitRepository OpenRepository(string localPath)
     {
