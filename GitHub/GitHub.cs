@@ -1,6 +1,5 @@
 ﻿using LibGit2Sharp;
 using Octokit;
-using Utils.FileActions;
 using Utils.General;
 using GitCredentials = LibGit2Sharp.UsernamePasswordCredentials;
 using GitHubCredentials = Octokit.Credentials;
@@ -91,11 +90,7 @@ public class GitHub
                 $"Repository at '{localPath}' does not contain an 'origin' remote.");
         }
 
-        if (!string.Equals(origin.Url, repoUrl, StringComparison.OrdinalIgnoreCase))
-        {
-            throw new InvalidOperationException(
-                $"Repository remote mismatch. Expected '{repoUrl}' but found '{origin.Url}'.");
-        }
+
     }
 
 

@@ -1,4 +1,5 @@
 ﻿using Humanizer;
+using Octokit.Internal;
 using System.Text.RegularExpressions;
 using Utils.FileActions;
 using Utils.General;
@@ -9,28 +10,40 @@ public static class ValidationHelper
 {
     public static async Task<bool> HasInternetConnectionAsync(CancellationToken cancellationToken = default)
     {
-        try
-        {
-            using HttpClient? client = new HttpClient
+        string[] _testUrls =
             {
-                Timeout = TimeSpan.FromSeconds(3)
-            };
+            "https://www.google.com/generate_204",
+            "https://www.cloudflare.com/cdn-cgi/trace",
+            "https://www.microsoft.com",
+            "https://www.apple.com"
+        };
 
-            using HttpRequestMessage? request = new HttpRequestMessage(
-                HttpMethod.Head,
-                "https://www.cloudflare.com/cdn-cgi/trace");
-
-            using HttpResponseMessage? response = await client.SendAsync(
-                request,
-                HttpCompletionOption.ResponseHeadersRead,
-                cancellationToken);
-
-            return response.IsSuccessStatusCode;
-        }
-        catch
+        using HttpClient? client = new HttpClient
         {
-            return false;
+            Timeout = TimeSpan.FromSeconds(3)
+        };
+
+        foreach (string url in _testUrls)
+        {
+            try
+            {
+                using var request = new HttpRequestMessage(HttpMethod.Head, url);
+
+                using var response = await client.SendAsync(
+                    request,
+                    HttpCompletionOption.ResponseHeadersRead,
+                    cancellationToken);
+
+                if (response.IsSuccessStatusCode)
+                    return true;
+            }
+            catch
+            {
+                FileHelper.WarnLogger($"Failed to connect to {url}. Trying next URL...");
+            }
         }
+
+        return false;
     }
 
     /// <summary>
