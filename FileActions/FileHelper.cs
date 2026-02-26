@@ -215,7 +215,7 @@ public static class FileHelper
 
     public static void ErrorLogger(Exception ex, bool DetailedExp = true, bool exThrow = true, string logDir = null)
     {
-        if (logDir.IsNullOrEmpty())
+        if (string.IsNullOrEmpty(logDir))
         {
             LogDirectory = _logDirectory;
         }
