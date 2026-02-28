@@ -144,7 +144,7 @@ public static class Helper
 
     public static bool CreateFolderIfDoesNotExist(string FolderPath)
     {
-        if (String.IsNullOrEmpty(FolderPath))
+        if (string.IsNullOrEmpty(FolderPath))
         {
             return false;
         }
