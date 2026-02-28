@@ -1,10 +1,15 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Humanizer;
+using LibGit2Sharp;
+using Microsoft.AspNetCore.Http;
+using Octokit;
 using System.Data;
 using System.Globalization;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Text.RegularExpressions;
 using Utils.FileActions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Utils.General;
 
@@ -70,6 +75,37 @@ public static class Helper
         return Guid.NewGuid().ToString();
     }
 
+    /// <summary>
+    /// Gets the MIME type for a file based on its extension.
+    /// </summary>
+    /// <remarks>
+    ///  MIME types are used to indicate the nature and format of a file, 
+    ///  especially in web contexts where you need to specify the type of content you're sending, 
+    ///  like images, text, etc.
+    ///  MIME type stands for Multipurpose Internet Mail Extensions type.
+    ///  It's a standard way to indicate the nature and format of a file or content. 
+    ///  MIME types are used to tell browsers, email clients, and
+    ///  other software about the type of data they're handling, so they can process it correctly.
+    /// </remarks>
+    /// <param name="filePath">The file path from which to extract the extension and determine the MIME type.</param>
+    /// <returns>
+    /// The MIME type as a string:
+    /// <list type="bullet">
+    /// <item><description>".jpg" or ".jpeg" → "image/jpeg"</description></item>
+    /// <item><description>".png" → "image/png"</description></item>
+    /// <item><description>".gif" → "image/gif"</description></item>
+    /// <item><description>All other extensions → "application/octet-stream" (default binary type)</description></item>
+    /// </list>
+    /// </returns>
+    /// <example>
+    /// <code>
+    /// string mimeType = GetMimeType("photo.jpg");
+    /// // Returns: "image/jpeg"
+    /// 
+    /// string mimeType = GetMimeType("document.pdf");
+    /// // Returns: "application/octet-stream"
+    /// </code>
+    /// </example>
     public static string GetMimeType(string filePath)
     {
         return Path.GetExtension(filePath).ToLowerInvariant() switch
