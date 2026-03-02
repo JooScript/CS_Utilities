@@ -52,27 +52,30 @@ public static class Helper
         return slug;
     }
 
-    public static async Task<string> UploadImage(List<IFormFile> Files, string folderName)
+    public static async Task<string> SaveFile(IFormFile file, string path)
     {
-        foreach (var file in Files)
+        if (file.Length <= 0)
         {
-            if (file.Length > 0)
-            {
-                string ImageName = GenerateGUID() + DateTime.Now.Year + DateTime.Now.Month + DateTime.Now.Day + ".jpg";
-                var filePaths = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Uploads\" + folderName, ImageName);
-                using (var stream = File.Create(filePaths))
-                {
-                    await file.CopyToAsync(stream);
-                    return ImageName;
-                }
-            }
+            return string.Empty;
         }
-        return string.Empty;
+
+        string fileName = GenerateUniqueTxt() + Path.GetExtension(file.FileName);
+
+        using (var stream = new FileStream(Path.Combine(path, fileName), System.IO.FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+            return fileName;
+        }
     }
 
     public static string GenerateGUID()
     {
         return Guid.NewGuid().ToString();
+    }
+
+    public static string GenerateUniqueTxt()
+    {
+        return GenerateGUID() + DateTime.UtcNow;
     }
 
     /// <summary>
