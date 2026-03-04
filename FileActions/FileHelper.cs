@@ -518,7 +518,6 @@ public static class FileHelper
     {
         if (string.IsNullOrWhiteSpace(fileLocation))
         {
-            ErrorLogger(new ArgumentNullException(nameof(fileLocation), "File path cannot be null or whitespace."));
             return false;
         }
 
@@ -526,7 +525,6 @@ public static class FileHelper
         {
             if (!File.Exists(fileLocation))
             {
-                ErrorLogger(new FileNotFoundException("File not found", fileLocation));
                 return false;
             }
 
