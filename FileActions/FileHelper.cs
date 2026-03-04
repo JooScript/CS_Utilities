@@ -428,7 +428,6 @@ public static class FileHelper
         return newName + new FileInfo(sourceFile).Extension;
     }
 
-
     private static bool HandleFileToFolder(string destinationFolder, ref string sourceFile, bool replaceWithGuid, bool replaceOlderFile, bool renameFile, string newName, Func<string, string, bool> fileOperation)
     {
         if (!Helper.CreateFolderIfDoesNotExist(destinationFolder))

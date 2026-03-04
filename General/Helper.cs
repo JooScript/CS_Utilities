@@ -55,16 +55,23 @@ public static class Helper
     public static async Task<string> SaveFile(IFormFile file, string path)
     {
         if (file.Length <= 0)
-        {
             return string.Empty;
-        }
 
-        string fileName = GenerateUniqueTxt() + Path.GetExtension(file.FileName);
+        CreateFolderIfDoesNotExist(path);
 
-        using (var stream = new FileStream(Path.Combine(path, fileName), System.IO.FileMode.Create))
+        string fileName = GenerateSlug(GenerateUniqueTxt()) + Path.GetExtension(file.FileName);
+
+        try
         {
-            await file.CopyToAsync(stream);
-            return fileName;
+            using (var stream = new FileStream(Path.Combine(path, fileName), System.IO.FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+                return fileName;
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error while Saving File", ex);
         }
     }
 
