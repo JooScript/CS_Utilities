@@ -7,7 +7,6 @@ using Utils.Format;
 
 namespace Utils.IMAP;
 
-
 public sealed class Imap(ILogger logger, string host, int port, string user, string pass, List<string> Mailboxes)
 {
     /// <summary>
