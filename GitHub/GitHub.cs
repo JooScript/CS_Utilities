@@ -1,4 +1,5 @@
 ﻿using LibGit2Sharp;
+using Microsoft.Extensions.Logging;
 using Octokit;
 using Utils.General;
 using GitCredentials = LibGit2Sharp.UsernamePasswordCredentials;
@@ -10,13 +11,16 @@ using GitSignature = LibGit2Sharp.Signature;
 public class GitHub
 {
     private string _Token { get; }
+    private ILogger _Logger { get; }
     private GitHubClient _Client { get; }
     public string Name { get; set; }
     public string Email { get; set; }
     private GitSignature _Signature => new GitSignature(Name, Email, DateTimeOffset.Now);
 
-    public GitHub(string token, string name, string email)
+    public GitHub(string token, string name, string email, ILogger logger)
     {
+        _Logger = logger;
+
         _Token = token;
         _Client = new GitHubClient(new ProductHeaderValue("GitHubSyncService"))
         {
@@ -54,7 +58,6 @@ public class GitHub
         throw new ArgumentException($"Invalid GitHub repository URL format: '{repoUrl}'", nameof(repoUrl));
     }
 
-
     public void CloneIfMissing(string repoUrl, string localPath)
     {
         ValidateRepoUrl(repoUrl);
@@ -90,10 +93,7 @@ public class GitHub
                 $"Repository at '{localPath}' does not contain an 'origin' remote.");
         }
 
-
     }
-
-
 
     public GitRepository OpenRepository(string localPath)
     {
