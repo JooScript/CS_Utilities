@@ -102,16 +102,35 @@ public class GitHub
 
     public void Pull(GitRepository repo)
     {
-        Commands.Pull(repo, _Signature, new PullOptions
+        var fetchOptions = new FetchOptions
         {
-            FetchOptions = new FetchOptions
+            CredentialsProvider = (_, _, _) => new GitCredentials
             {
-                CredentialsProvider = (_, _, _) => new GitCredentials
-                {
-                    Username = "token",
-                    Password = _Token
-                }
+                Username = "token",
+                Password = _Token
             }
+        };
+
+        // Fetch explicitly
+        var remote = repo.Network.Remotes["origin"];
+        var refSpecs = remote.FetchRefSpecs.Select(r => r.Specification);
+        Commands.Fetch(repo, remote.Name, refSpecs, fetchOptions, "pre-pull fetch");
+
+        // Merge the tracking branch directly — bypass Commands.Pull entirely
+        var branch = repo.Head;
+        var trackedBranch = branch.TrackedBranch;
+
+        if (trackedBranch == null)
+        {
+            // Fallback: find origin/main manually
+            trackedBranch = repo.Branches["origin/main"]
+                ?? repo.Branches["origin/master"]
+                ?? throw new InvalidOperationException("No tracked remote branch found after fetch.");
+        }
+
+        repo.Merge(trackedBranch, _Signature, new MergeOptions
+        {
+            FastForwardStrategy = FastForwardStrategy.FastForwardOnly
         });
     }
 
@@ -132,7 +151,9 @@ public class GitHub
 
     public void Push(GitRepository repo)
     {
-        repo.Network.Push(repo.Head, new PushOptions
+        var remote = repo.Network.Remotes["origin"];
+
+        repo.Network.Push(remote, $"refs/heads/{repo.Head.FriendlyName}:refs/heads/{repo.Head.FriendlyName}", new PushOptions
         {
             CredentialsProvider = (_, _, _) => new GitCredentials
             {
@@ -184,7 +205,16 @@ public class GitHub
 
         using var repo = OpenRepository(localPath);
 
-        Pull(repo);
+        // Only pull if the remote has commits
+        var remote = repo.Network.Remotes["origin"];
+        var remoteRefs = repo.Network.ListReferences(remote, (_, _, _) => new GitCredentials
+        {
+            Username = "token",
+            Password = _Token
+        });
+
+        if (remoteRefs.Any())
+            Pull(repo);
 
         if (HasChanges(repo))
         {
@@ -192,7 +222,5 @@ public class GitHub
             Commit(repo, commitMessage);
             Push(repo);
         }
-
     }
-
 }
