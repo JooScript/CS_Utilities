@@ -7,14 +7,15 @@ using Utils.Format;
 
 namespace Utils.IMAP;
 
-/// <summary>
-/// Downloads every message from each configured mailbox via IMAP/SSL
-/// and saves it as an RFC-822 .eml file.  Already-saved files are skipped.
-///
-/// MailKit docs: https://github.com/jstedfast/MailKit
-/// </summary>
+
 public sealed class Imap(ILogger logger, string host, int port, string user, string pass, List<string> Mailboxes)
 {
+    /// <summary>
+    /// Downloads every message from each configured mailbox via IMAP/SSL
+    /// and saves it as an RFC-822 .eml file.  Already-saved files are skipped.
+    ///
+    /// MailKit docs: https://github.com/jstedfast/MailKit
+    /// </summary>
     public async Task<int> BackupAllAsync(DirectoryInfo backupRoot, CancellationToken cancellationToken = default)
     {
         int totalNew = 0;
@@ -39,8 +40,6 @@ public sealed class Imap(ILogger logger, string host, int port, string user, str
         await client.DisconnectAsync(quit: true, cancellationToken);
         return totalNew;
     }
-
-    // ── Private ───────────────────────────────────────────────────────────────
 
     private async Task<int> BackupMailboxAsync(
         ImapClient client,
@@ -76,8 +75,6 @@ public sealed class Imap(ILogger logger, string host, int port, string user, str
 
         foreach (var uid in uids)
         {
-
-
             cancellationToken.ThrowIfCancellationRequested();
 
             var filename = Path.Combine(dest.FullName, $"{uid.Id:D8}.eml");
@@ -114,6 +111,5 @@ public sealed class Imap(ILogger logger, string host, int port, string user, str
         await folder.CloseAsync(expunge: false, cancellationToken);
         return saved;
     }
-
 
 }
