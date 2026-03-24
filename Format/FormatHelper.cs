@@ -10,7 +10,7 @@ public class FormatHelper
     {
         return Dt1.ToString("dd/MMM/yyyy");
     }
-
+    public static string SanitizeName(string name) => string.Concat(name.Select(c => c is '/' or '\\' ? '_' : c));
     public static string RemovePrefix(string name, string prefix)
     {
         return name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
