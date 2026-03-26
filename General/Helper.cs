@@ -123,6 +123,7 @@ public static class Helper
             ".jpg" or ".jpeg" => "image/jpeg",
             ".png" => "image/png",
             ".gif" => "image/gif",
+            ".webp" => "image/webp",
             _ => "application/octet-stream",
         };
     }
