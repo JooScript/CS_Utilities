@@ -129,70 +129,46 @@ public static class DatabaseHelper
     {
         _CheckConnectionStringInitialized();
 
-        ServerConnection serverConnection = null;
-        string backDir = $"C:\\BackupTemp";
+        string backDir = @"C:\BackupTemp";
         string databaseName = ExtractAppNameFromConnectionString();
-        string timestamp = $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}";
+        string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
         string typeStr = type.ToString();
         string fileName = $"{databaseName}_{typeStr}_{timestamp}.bak";
         string backupPath = Path.Combine(backDir, fileName);
 
         try
         {
-
             if (!Directory.Exists(backDir))
-            {
                 Directory.CreateDirectory(backDir);
-            }
+
+            string backupSql = type == BackupType.Full
+                ? $"BACKUP DATABASE [{databaseName}] TO DISK = @BackupPath WITH INIT, NAME = @BackupName"
+                : $"BACKUP DATABASE [{databaseName}] TO DISK = @BackupPath WITH DIFFERENTIAL, NAME = @BackupName";
 
             using (SqlConnection sqlConnection = new SqlConnection(_connectionString))
+            using (SqlCommand cmd = new SqlCommand(backupSql, sqlConnection))
             {
+                cmd.Parameters.AddWithValue("@BackupPath", backupPath);
+                cmd.Parameters.AddWithValue("@BackupName", $"{databaseName} {typeStr} Backup");
+
                 sqlConnection.Open();
-
-                serverConnection = new ServerConnection(sqlConnection);
-                Server server = new Server(serverConnection);
-
-                if (!server.Databases.Contains(databaseName))
-                    throw new InvalidOperationException($"Database '{databaseName}' does not exist on server '{serverConnection.ServerInstance}'.");
-
-                Backup backup = new Backup
-                {
-                    Action = BackupActionType.Database,
-                    Database = databaseName,
-                    BackupSetName = $"{databaseName} {typeStr} Backup",
-                    BackupSetDescription = $"{typeStr} backup of {databaseName} on {DateTime.Now:yyyy-MM-dd HH:mm:ss}",
-                    Incremental = type == BackupType.Differential,
-                    LogTruncation = BackupTruncateLogType.Truncate,
-                    Initialize = type == BackupType.Full
-                };
-
-                backup.Devices.AddDevice(backupPath, DeviceType.File);
-                backup.SqlBackup(server);
+                cmd.ExecuteNonQuery();
             }
 
             if (!File.Exists(backupPath))
-            {
-                FileHelper.ErrorLogger(new IOException($"Backup file was not created at: {backupPath}"));
-            }
-
+                throw new IOException($"Backup file was not created at: {backupPath}");
         }
         catch (Exception ex)
         {
             FileHelper.ErrorLogger(new Exception("[ERROR] Database backup failed", ex), true);
             return false;
         }
-        finally
-        {
-            if (serverConnection != null && serverConnection.IsOpen)
-            {
-                serverConnection.Disconnect();
-            }
-        }
 
         FileHelper.WaitForFileAvailable(backupPath);
         FileHelper.MoveFileToFolder(filePath, ref backupPath);
         filePath = backupPath;
         Helper.DeleteFolder(backDir, true);
+
         return true;
     }
 
