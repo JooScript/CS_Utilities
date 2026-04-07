@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using Microsoft.AspNetCore.Http;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
@@ -340,6 +341,33 @@ public static class FileHelper
     }
 
     #endregion
+
+    public class FileData
+    {
+        public byte[] Data { get; set; } = default!;
+        public string FileName { get; set; } = default!;
+        public string ContentType { get; set; } = default!;
+        public long Length { get; set; }
+        public string Name { get; set; } = default!;
+    }
+
+    public static async Task<FileData?> ToFileDataAsync(IFormFile? file)
+    {
+        if (file == null || file.Length == 0)
+            return null;
+
+        using var memoryStream = new MemoryStream();
+        await file.CopyToAsync(memoryStream);
+
+        return new FileData
+        {
+            Data = memoryStream.ToArray(),
+            FileName = Path.GetFileName(file.FileName),
+            ContentType = file.ContentType,
+            Length = file.Length,
+            Name = file.Name
+        };
+    }
 
     public static string SanitizeFileName(string input)
     {
