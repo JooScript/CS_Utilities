@@ -1,15 +1,10 @@
-﻿using Humanizer;
-using LibGit2Sharp;
-using Microsoft.AspNetCore.Http;
-using Octokit;
+﻿using Microsoft.AspNetCore.Http;
 using System.Data;
 using System.Globalization;
 using System.Reflection;
-using System.Reflection.Metadata;
 using System.Text;
 using System.Text.RegularExpressions;
 using Utils.FileActions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Utils.General;
 
