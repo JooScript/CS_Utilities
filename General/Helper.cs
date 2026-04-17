@@ -10,6 +10,26 @@ namespace Utils.General;
 
 public static class Helper
 {
+    public static string GetDetailedExceptionMessage(Exception ex)
+    {
+        var currentEx = ex;
+        var sb = new StringBuilder();
+
+        while (currentEx != null)
+        {
+            sb.AppendLine($"Exception Type: {currentEx.GetType().FullName}");
+            sb.AppendLine($"Message: {currentEx.Message}");
+            sb.AppendLine($"Source: {currentEx.Source}");
+            sb.AppendLine($"Help Link: {currentEx.HelpLink}");
+            sb.AppendLine($"Stack Trace: {currentEx.StackTrace}");
+
+            currentEx = currentEx.InnerException;
+        }
+
+        return sb.ToString();
+    }
+
+
     /// <summary>
     /// Cleans a string into a URL-safe slug (e.g. for filenames, SEO URLs, etc.).
     /// </summary>
