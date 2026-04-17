@@ -130,24 +130,21 @@ public static class FileHelper
         catch { /* Ignore cleanup errors */ }
     }
 
-
-
     public static async Task LogToFileAsync(string message)
     {
         try
         {
-            string logFileName = $"AppLog_{DateTime.Now:yyyyMMdd}.log";
+            string logFileName = $"AppLog_{DateTime.Now:yyyyMMddHHmmss}.log";
             string logFilePath = Path.Combine(_logDirectory, logFileName);
 
             Helper.CreateFolderIfDoesNotExist(_logDirectory);
-
-            string logEntry = $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss.fff}] [{_LogLevel.ToString()}] {message}{Environment.NewLine}";
+            string logEntry = $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss.fff}] [{_LogLevel.ToString()}] {Environment.NewLine}{Environment.NewLine}{message}";
             var fileLock = _fileLocks.GetOrAdd(logFilePath, _ => new SemaphoreSlim(1, 1));
 
             try
             {
                 await fileLock.WaitAsync();
-                await File.AppendAllTextAsync(logFilePath, logEntry);
+                await File.AppendAllTextAsync(logFilePath, message);
             }
             finally
             {
@@ -216,7 +213,7 @@ public static class FileHelper
         }
     }
 
-    public static void ErrorLogger(Exception ex, bool DetailedExp = true, bool exThrow = true, string logDir = null)
+    public static void ErrorLogger(Exception ex, bool DetailedExp = true, string logDir = null)
     {
         if (string.IsNullOrEmpty(logDir))
         {
@@ -233,42 +230,21 @@ public static class FileHelper
         }
 
         LogLevel = enLogLevel.Error;
-        Logger FileLogger = new Logger(LogToFile);
-
-        StringBuilder sb = new StringBuilder();
-        sb.AppendLine("");
 
         if (DetailedExp)
         {
-            int level = 0;
-            var CurrentEx = ex;
-            while (CurrentEx != null)
-            {
-                sb.AppendLine($"--- Exception Level {level} ---");
-                sb.AppendLine($"Type       : {CurrentEx.GetType().FullName}");
-                sb.AppendLine($"Message    : {CurrentEx.Message}");
-                sb.AppendLine($"StackTrace : {CurrentEx.StackTrace}");
-                CurrentEx = CurrentEx.InnerException;
-                level++;
-            }
-            FileLogger.Log(sb.ToString());
+            LogToFile(FormatHelper.GetDetailedExceptionMessage(ex));
         }
         else
         {
-            FileLogger.Log(FormatHelper.ExceptionToString(ex));
-        }
-
-        if (exThrow)
-        {
-            throw ex;
+            LogToFile(FormatHelper.ExceptionToString(ex));
         }
     }
 
     public static void InfoLogger(string msg)
     {
         LogLevel = enLogLevel.Info;
-        Logger FileLogger = new Logger(LogToFile);
-        FileLogger.Log(msg);
+        LogToFile(msg);
     }
 
     public static void WarnLogger(string msg)
