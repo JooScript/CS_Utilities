@@ -6,7 +6,7 @@ namespace Utils.Format;
 
 public class FormatHelper
 {
-    public static string GetDetailedExceptionMessage(Exception ex)
+    public static string FormatException(Exception ex)
     {
         var currentEx = ex;
         var sb = new StringBuilder();

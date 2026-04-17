@@ -231,7 +231,7 @@ public static class FileHelper
 
         if (DetailedExp)
         {
-            LogToFile(FormatHelper.GetDetailedExceptionMessage(ex));
+            LogToFile(FormatHelper.FormatException(ex));
         }
         else
         {
