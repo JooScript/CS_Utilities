@@ -6,6 +6,37 @@ namespace Utils.Format;
 
 public class FormatHelper
 {
+    public static string GetDetailedExceptionMessage(Exception ex)
+    {
+        var currentEx = ex;
+        var sb = new StringBuilder();
+        int level = 0;
+        while (currentEx != null)
+        {
+            sb.AppendLine($"--- Exception Level {level} ---");
+            sb.AppendLine();
+            sb.AppendLine($"Exception Type: {currentEx.GetType().FullName}");
+            sb.AppendLine();
+            sb.AppendLine($"Message: {currentEx.Message}");
+            sb.AppendLine();
+            sb.AppendLine($"Source: {currentEx.Source}");
+            sb.AppendLine();
+            sb.AppendLine($"Help Link: {currentEx.HelpLink}");
+            sb.AppendLine();
+            sb.AppendLine($"Stack Trace: {currentEx.StackTrace}");
+            sb.AppendLine();
+
+            currentEx = currentEx.InnerException;
+            level++;
+        }
+
+        sb.AppendLine();
+        sb.AppendLine();
+        sb.AppendLine();
+
+        return sb.ToString();
+    }
+
     public static string DateToShort(DateTime Dt1)
     {
         return Dt1.ToString("dd/MMM/yyyy");
