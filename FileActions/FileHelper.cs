@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Xml;
 using Utils.Format;
 using Utils.General;
 using Utils.Logging;
@@ -128,6 +129,8 @@ public static class FileHelper
         }
         catch { /* Ignore cleanup errors */ }
     }
+
+
 
     public static async Task LogToFileAsync(string message)
     {
@@ -349,6 +352,17 @@ public static class FileHelper
         public string ContentType { get; set; } = default!;
         public long Length { get; set; }
         public string Name { get; set; } = default!;
+    }
+
+    public static XmlDocument ToXmlDoc(string xmlPath)
+    {
+        if (!File.Exists(xmlPath))
+            throw new Exception("Invoice XML not found");
+
+        var xml = new XmlDocument();
+        xml.Load(xmlPath);
+
+        return xml;
     }
 
     public static async Task<FileData?> ToFileDataAsync(IFormFile? file)
