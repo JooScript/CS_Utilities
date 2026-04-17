@@ -2,13 +2,11 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
-using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Utils.Format;
 using Utils.General;
-using Utils.Logging;
 
 namespace Utils.FileActions;
 
@@ -138,13 +136,13 @@ public static class FileHelper
             string logFilePath = Path.Combine(_logDirectory, logFileName);
 
             Helper.CreateFolderIfDoesNotExist(_logDirectory);
-            string logEntry = $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss.fff}] [{_LogLevel.ToString()}] {Environment.NewLine}{Environment.NewLine}{message}";
+            string logEntry = $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss.fff}] [{_LogLevel.ToString()}]{Environment.NewLine}{Environment.NewLine}{message}";
             var fileLock = _fileLocks.GetOrAdd(logFilePath, _ => new SemaphoreSlim(1, 1));
 
             try
             {
                 await fileLock.WaitAsync();
-                await File.AppendAllTextAsync(logFilePath, message);
+                await File.AppendAllTextAsync(logFilePath, logEntry);
             }
             finally
             {
@@ -250,8 +248,7 @@ public static class FileHelper
     public static void WarnLogger(string msg)
     {
         LogLevel = enLogLevel.Warn;
-        Logger FileLogger = new Logger(LogToFile);
-        FileLogger.Log(msg);
+        LogToFile(msg);
     }
 
     #endregion
