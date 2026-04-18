@@ -29,7 +29,6 @@ public static class Helper
         return sb.ToString();
     }
 
-
     /// <summary>
     /// Cleans a string into a URL-safe slug (e.g. for filenames, SEO URLs, etc.).
     /// </summary>
