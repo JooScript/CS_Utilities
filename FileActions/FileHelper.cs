@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml;
+using System.Xml.Linq;
 using Utils.Format;
 using Utils.General;
 
@@ -336,6 +337,21 @@ public static class FileHelper
         xml.Load(xmlPath);
 
         return xml;
+    }
+
+    public static XmlDocument ToXmlDoc(XDocument xDoc)
+    {
+        if (xDoc == null)
+            throw new ArgumentNullException(nameof(xDoc));
+
+        var xmlDoc = new XmlDocument();
+
+        using (var reader = xDoc.CreateReader())
+        {
+            xmlDoc.Load(reader);
+        }
+
+        return xmlDoc;
     }
 
     public static async Task<FileData?> ToFileDataAsync(IFormFile? file)
