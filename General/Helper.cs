@@ -4,12 +4,15 @@ using System.Globalization;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml;
+using System.Xml.Linq;
 using Utils.FileActions;
 
 namespace Utils.General;
 
 public static class Helper
 {
+
     public static string GetDetailedExceptionMessage(Exception ex)
     {
         var currentEx = ex;

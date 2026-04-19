@@ -328,32 +328,6 @@ public static class FileHelper
         public string Name { get; set; } = default!;
     }
 
-    public static XmlDocument ToXmlDoc(string xmlPath)
-    {
-        if (!File.Exists(xmlPath))
-            throw new Exception("Invoice XML not found");
-
-        var xml = new XmlDocument();
-        xml.Load(xmlPath);
-
-        return xml;
-    }
-
-    public static XmlDocument ToXmlDoc(XDocument xDoc)
-    {
-        if (xDoc == null)
-            throw new ArgumentNullException(nameof(xDoc));
-
-        var xmlDoc = new XmlDocument();
-
-        using (var reader = xDoc.CreateReader())
-        {
-            xmlDoc.Load(reader);
-        }
-
-        return xmlDoc;
-    }
-
     public static async Task<FileData?> ToFileDataAsync(IFormFile? file)
     {
         if (file == null || file.Length == 0)
