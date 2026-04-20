@@ -6,6 +6,34 @@ namespace Utils.Format;
 
 public class FormatHelper
 {
+    public static string ToSnakeCase(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return input;
+
+        StringBuilder result = new StringBuilder();
+
+        input = input.Trim();
+
+        for (int i = 0; i < input.Length; i++)
+        {
+            char c = input[i];
+            if (char.IsUpper(c))
+            {
+                if (i > 0 && (char.IsLower(input[i - 1]) || char.IsDigit(input[i - 1])))
+                {
+                    result.Append('_');
+                }
+                result.Append(char.ToLower(c));
+            }
+            else
+            {
+                result.Append(c);
+            }
+        }
+        return result.ToString();
+    }
+
     public static string FormatException(Exception ex)
     {
         var currentEx = ex;
