@@ -17,7 +17,7 @@ public static class DatabaseHelper
         Differential = 1
     }
 
-    private static string _connectionString;
+    private static string _connectionString = null!;
     private static readonly ConcurrentDictionary<string, TableSchema> _schemaCache = new ConcurrentDictionary<string, TableSchema>();
     private static readonly object _lock = new();
 
@@ -207,8 +207,8 @@ public static class DatabaseHelper
             restore.RelocateFiles.Clear();
 
             DataTable logicalFiles = restore.ReadFileList(sqlServer);
-            string dataLogicalName = logicalFiles.Rows[0]["LogicalName"].ToString();
-            string logLogicalName = logicalFiles.Rows[1]["LogicalName"].ToString();
+            string? dataLogicalName = logicalFiles.Rows[0]["LogicalName"].ToString();
+            string? logLogicalName = logicalFiles.Rows[1]["LogicalName"].ToString();
 
             string dataFilePath = Path.Combine(sqlServer.Settings.DefaultFile, $"{databaseName}.mdf");
             string logFilePath = Path.Combine(sqlServer.Settings.DefaultLog, $"{databaseName}_log.ldf");
@@ -236,7 +236,7 @@ public static class DatabaseHelper
     /// 2. Creates a new connection without a specific database specified
     /// 3. Queries the SQL Server system catalog for online user databases (excluding system databases)
     /// 4. Returns the names of all accessible databases
-    /// 
+    ///
     /// Note: The connection string must have sufficient permissions to query sys.databases.
     /// System databases (master, tempdb, model, msdb) are excluded from the results.
     /// Only online databases (state = 0) are included.
@@ -265,8 +265,8 @@ public static class DatabaseHelper
 
             // Query to get all user-accessible databases
             string query = @"
-        SELECT name 
-        FROM sys.databases 
+        SELECT name
+        FROM sys.databases
         WHERE state = 0 -- Only online databases
         AND database_id > 4 -- Skip system databases (master, tempdb, model, msdb)
         ORDER BY name";
@@ -277,7 +277,11 @@ public static class DatabaseHelper
                 {
                     while (reader.Read())
                     {
-                        databases.Add(reader["name"].ToString());
+                        var db = reader["name"]?.ToString();
+
+                        if (db is not null)
+                            databases.Add(db);
+
                     }
                 }
             }
@@ -286,7 +290,7 @@ public static class DatabaseHelper
         return databases;
     }
 
-    #region Stored Precedures
+    #region Stored Procedures
 
     public static bool VerifyProcedureExists(string procedureName)
     {
@@ -298,11 +302,11 @@ public static class DatabaseHelper
         }
 
         const string checkSql = @"
-SELECT 1 
+SELECT 1
 FROM sys.sql_modules m
 INNER JOIN sys.objects o ON m.object_id = o.object_id
-WHERE o.type = 'P' 
-AND SCHEMA_NAME(o.schema_id) = 'dbo' 
+WHERE o.type = 'P'
+AND SCHEMA_NAME(o.schema_id) = 'dbo'
 AND o.name = @ProcedureName";
 
         try
@@ -517,7 +521,11 @@ END";
                 {
                     while (reader.Read())
                     {
-                        proceduresToDelete.Add(reader["FullQualifiedProcedureName"].ToString());
+                        var proc = reader["FullQualifiedProcedureName"]?.ToString();
+
+                        if (proc is not null)
+                            proceduresToDelete.Add(proc);
+
                     }
                 }
 
@@ -581,11 +589,11 @@ END";
             await connection.OpenAsync();
 
             const string query = @"
-                    SELECT TABLE_NAME 
-                    FROM INFORMATION_SCHEMA.TABLES 
-                    WHERE TABLE_TYPE = 'BASE TABLE' 
+                    SELECT TABLE_NAME
+                    FROM INFORMATION_SCHEMA.TABLES
+                    WHERE TABLE_TYPE = 'BASE TABLE'
                     AND TABLE_NAME NOT IN (
-                        'sysdiagrams', 
+                        'sysdiagrams',
                         '__EFMigrationsHistory',
                         'AspNetRoles',
                         'AspNetUsers',
@@ -651,10 +659,10 @@ END";
             await connection.OpenAsync();
 
             const string query = @"
-            SELECT 
-                c.COLUMN_NAME, 
-                c.DATA_TYPE, 
-                c.IS_NULLABLE, 
+            SELECT
+                c.COLUMN_NAME,
+                c.DATA_TYPE,
+                c.IS_NULLABLE,
                 c.CHARACTER_MAXIMUM_LENGTH,
                 c.NUMERIC_PRECISION,
                 c.NUMERIC_SCALE,
@@ -669,7 +677,7 @@ END";
                 AND CONSTRAINT_NAME LIKE 'PK_%'
             ) pk ON c.COLUMN_NAME = pk.COLUMN_NAME
             LEFT JOIN (
-                SELECT COLUMN_NAME 
+                SELECT COLUMN_NAME
                 FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
                 WHERE TABLE_NAME = @TableName
                 AND CONSTRAINT_NAME LIKE 'FK_%'
@@ -767,7 +775,7 @@ END";
             await connection.OpenAsync();
 
             const string query = @"
-            SELECT 
+            SELECT
                 col.name AS COLUMN_NAME,
                 OBJECT_NAME(fk.referenced_object_id) AS REFERENCED_TABLE,
                 COL_NAME(fk.referenced_object_id, fkc.referenced_column_id) AS REFERENCED_COLUMN,
@@ -787,10 +795,10 @@ END";
                 END AS UPDATE_RULE,
                 fk.name AS CONSTRAINT_NAME
             FROM sys.foreign_keys fk
-            INNER JOIN sys.foreign_key_columns fkc 
+            INNER JOIN sys.foreign_key_columns fkc
                 ON fk.object_id = fkc.constraint_object_id
-            INNER JOIN sys.columns col 
-                ON fkc.parent_object_id = col.object_id 
+            INNER JOIN sys.columns col
+                ON fkc.parent_object_id = col.object_id
                 AND fkc.parent_column_id = col.column_id
             WHERE OBJECT_NAME(fk.parent_object_id) = @TableName
             AND fk.name LIKE 'FK_%'";
@@ -827,9 +835,7 @@ END";
         _CheckConnectionStringInitialized();
 
         if (useCache && _schemaCache.Count > 0)
-        {
             return _schemaCache.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-        }
 
         var schema = new Dictionary<string, TableSchema>();
 
@@ -879,40 +885,25 @@ END";
     #region Sync Methods
 
     public static List<string> GetTableNames()
-    {
-        return GetTableNamesAsync().GetAwaiter().GetResult();
-    }
+        => GetTableNamesAsync().GetAwaiter().GetResult();
 
     public static bool TableExists(string tableName)
-    {
-        return TableExistsAsync(tableName).GetAwaiter().GetResult();
-    }
+        => TableExistsAsync(tableName).GetAwaiter().GetResult();
 
     public static List<ColumnInfo> GetTableColumns(string tableName)
-    {
-        return GetTableColumnsAsync(tableName).GetAwaiter().GetResult();
-    }
+        => GetTableColumnsAsync(tableName).GetAwaiter().GetResult();
 
     public static List<string> GetPrimaryKeys(string tableName)
-    {
-        return GetPrimaryKeysAsync(tableName).GetAwaiter().GetResult();
-    }
+        => GetPrimaryKeysAsync(tableName).GetAwaiter().GetResult();
 
-    public static string GetFirstPrimaryKey(string tableName)
-    {
-        return GetFirstPrimaryKeyAsync(tableName).GetAwaiter().GetResult();
-    }
+    public static string? GetFirstPrimaryKey(string tableName)
+        => GetFirstPrimaryKeyAsync(tableName).GetAwaiter().GetResult();
 
     public static List<ForeignKeyInfo> GetForeignKeys(string tableName)
-    {
-        return GetForeignKeysAsync(tableName).GetAwaiter().GetResult();
-    }
+        => GetForeignKeysAsync(tableName).GetAwaiter().GetResult();
 
     public static Dictionary<string, TableSchema> GetDatabaseSchema(bool useCache = true)
-    {
-        return GetDatabaseSchemaAsync(useCache).GetAwaiter().GetResult();
-    }
-
+        => GetDatabaseSchemaAsync(useCache).GetAwaiter().GetResult();
     #endregion
 
     #region Support Classes
