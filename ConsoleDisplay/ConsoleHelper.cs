@@ -1,6 +1,4 @@
 ﻿using System.Data;
-using Utils.DS.TreesDS.BinTreeDS;
-using Utils.DS.TreesDS.GenTreeDS;
 using Utils.Format;
 
 namespace Utils.ConsoleDisplay;
@@ -45,40 +43,6 @@ public static class ConsoleHelper
         }
         Console.WriteLine("\nCompleted!");
     }
-
-    #endregion
-
-    #region Tree Printing
-
-    public static void PrintTree<T>(BinaryTreeNode<T> root, int space = 0)
-    {
-        int COUNT = 10;  // Distance between levels to adjust the visual representation
-        if (root == null)
-            return;
-
-        space += COUNT;
-        PrintTree(root.Right, space); // Print right subtree first, then root, and left subtree last
-
-        Console.WriteLine();
-        for (int i = COUNT; i < space; i++)
-            Console.Write(" ");
-        Console.WriteLine(root.Value); // Print the current node after space
-
-        PrintTree(root.Left, space); // Recur on the left child
-    }
-
-    public static void PrintTree<T>(BinaryTree<T> binaryTree, int space = 0) => PrintTree(binaryTree.Root, space);
-
-    public static void PrintTree<T>(TreeNode<T> root, string indent = " ")
-    {
-        Console.WriteLine(indent + root.Value);
-        foreach (var child in root.Children)
-        {
-            PrintTree(child, indent + "  ");
-        }
-    }
-
-    public static void PrintTree<T>(Tree<T> genTree, string indent = " ") => PrintTree(genTree.Root, indent);
 
     #endregion
 
