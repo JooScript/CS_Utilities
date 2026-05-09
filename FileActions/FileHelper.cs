@@ -4,8 +4,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Xml;
-using System.Xml.Linq;
 using Utils.Format;
 using Utils.General;
 
@@ -280,11 +278,17 @@ public static class FileHelper
             string currentDirectory = Directory.GetCurrentDirectory();
             string filePath = currentDirectory + $"\\{FileName}";
 
+            if (filePath is null)
+                throw new Exception("The filepath can not be null");
+
             if (File.Exists(filePath))
             {
                 using (StreamReader reader = new StreamReader(filePath))
                 {
-                    string line;
+                    if (reader is null)
+                        throw new Exception("The reader can not be null");
+
+                    string? line;
                     while ((line = reader.ReadLine()) is not null)
                     {
                         Console.WriteLine(line);
@@ -370,7 +374,13 @@ public static class FileHelper
 
         if (File.Exists(path))
         {
-            string newPath = Path.Combine(Path.GetDirectoryName(path), newName, Path.GetExtension(path));
+
+            var dirName = Path.GetDirectoryName(path);
+
+            if (dirName is null)
+                throw new Exception("The Directory Name Can not be null");
+
+            string newPath = Path.Combine(dirName, newName, Path.GetExtension(path));
             File.Move(path, newPath);
             return true;
         }
