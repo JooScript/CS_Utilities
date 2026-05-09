@@ -88,7 +88,7 @@ public static class ConsoleHelper
     /// <param name="success">True for success, false for failure</param>
     /// <param name="customSuccessMessage">Optional custom success message</param>
     /// <param name="customFailureMessage">Optional custom failure message</param>
-    public static void PrintStatus(bool success, string customSuccessMessage = null, string customFailureMessage = null)
+    public static void PrintStatus(bool success, string? customSuccessMessage = null, string? customFailureMessage = null)
     {
         ConsoleColor color = success ? ConsoleColor.Green : ConsoleColor.Red;
         string icon = success ? "✓" : "✗";
@@ -106,7 +106,7 @@ public static class ConsoleHelper
     /// <summary>
     /// Extended version with elapsed time display
     /// </summary>
-    public static void PrintStatus(bool success, TimeSpan elapsedTime, string customSuccessMessage = null, string customFailureMessage = null)
+    public static void PrintStatus(bool success, TimeSpan elapsedTime, string? customSuccessMessage = null, string? customFailureMessage = null)
     {
         ConsoleColor color = success ? ConsoleColor.Green : ConsoleColor.Red;
         string icon = success ? "✓" : "✗";

@@ -178,7 +178,7 @@ public static class JsonHelper
         }
     }
 
-    public static T DeserializeObject<T>(string json)
+    public static T? DeserializeObject<T>(string json)
     {
         if (string.IsNullOrWhiteSpace(json)) return default;
 

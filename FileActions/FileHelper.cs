@@ -206,38 +206,28 @@ public static class FileHelper
                 File.WriteAllText(logFilePath, content + jsonEntry + "]");
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-
+            throw;
         }
     }
 
-    public static void ErrorLogger(Exception ex, bool DetailedExp = true, string logDir = null)
+    public static void ErrorLogger(Exception ex, bool DetailedExp = true, string? logDir = null)
     {
         if (string.IsNullOrEmpty(logDir))
-        {
             LogDirectory = _logDirectory;
-        }
         else
-        {
             LogDirectory = logDir;
-        }
 
-        if (ex == null)
-        {
+        if (ex is null)
             throw new ArgumentNullException(nameof(ex));
-        }
 
         LogLevel = enLogLevel.Error;
 
         if (DetailedExp)
-        {
             LogToFile(FormatHelper.FormatException(ex));
-        }
         else
-        {
             LogToFile(FormatHelper.ExceptionToString(ex));
-        }
     }
 
     public static void InfoLogger(string msg)
@@ -295,7 +285,7 @@ public static class FileHelper
                 using (StreamReader reader = new StreamReader(filePath))
                 {
                     string line;
-                    while ((line = reader.ReadLine()) != null)
+                    while ((line = reader.ReadLine()) is not null)
                     {
                         Console.WriteLine(line);
                         string[] result = line.Split(new string[] { Splitter }, StringSplitOptions.None);
@@ -375,16 +365,20 @@ public static class FileHelper
 
     public static bool Rename(string path, string newName)
     {
+        if (path is null)
+            throw new Exception("The Path Cannot be null");
+
         if (File.Exists(path))
         {
             string newPath = Path.Combine(Path.GetDirectoryName(path), newName, Path.GetExtension(path));
             File.Move(path, newPath);
             return true;
         }
+
         return false;
     }
 
-    public static async Task<bool> StoreToFileAsync(string Content, string sourceFile = "File.txt", string DestinationFolder = null, bool Replace = true)
+    public static async Task<bool> StoreToFileAsync(string Content, string sourceFile = "File.txt", string? DestinationFolder = null, bool Replace = true)
     {
         if (string.IsNullOrEmpty(DestinationFolder))
         {
@@ -417,10 +411,8 @@ public static class FileHelper
         }
     }
 
-    public static bool StoreToFile(string Content, string sourceFile = "File.txt", string restinationFolder = null, bool replace = true)
-    {
-        return StoreToFileAsync(Content, sourceFile, restinationFolder, replace).GetAwaiter().GetResult();
-    }
+    public static async Task<bool> StoreToFile(string Content, string sourceFile = "File.txt", string? destinationFolder = null, bool replace = true)
+        => await StoreToFileAsync(Content, sourceFile, destinationFolder, replace);
 
     public static string ReplaceFileNameWithGUID(string sourceFile)
     {

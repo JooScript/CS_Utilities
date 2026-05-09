@@ -59,7 +59,7 @@ public class WinHelper
     }
 
     [SupportedOSPlatform("windows")]
-    public static string GetFromCurrentUserRegistry(string keyName, string appName)
+    public static string? GetFromCurrentUserRegistry(string keyName, string appName)
     {
         if (string.IsNullOrWhiteSpace(appName))
             throw new ArgumentException("Software name cannot be null or empty.", nameof(appName));
