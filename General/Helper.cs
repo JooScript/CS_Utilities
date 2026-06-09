@@ -7,11 +7,19 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 using Utils.FileActions;
+using QRCoder;
 
 namespace Utils.General;
 
 public static class Helper
 {
+    public static byte[] GenerateQrImage(string qrValue)
+    {
+        using var qrGenerator = new QRCodeGenerator();
+        var qrData = qrGenerator.CreateQrCode(qrValue, QRCodeGenerator.ECCLevel.M);
+        using var qrCode = new PngByteQRCode(qrData);
+        return qrCode.GetGraphic(10); // 10 = pixels per module
+    }
 
     public static string GetDetailedExceptionMessage(Exception ex)
     {
