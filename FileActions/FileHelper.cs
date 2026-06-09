@@ -544,6 +544,33 @@ public static class FileHelper
         }
     }
 
+    public static bool SaveImage(byte[] imageBytes, string fileName, string directoryPath)
+    {
+        try
+        {
+            if (imageBytes == null || imageBytes.Length == 0)
+                return false;
+
+            if (string.IsNullOrWhiteSpace(fileName))
+                return false;
+
+            if (string.IsNullOrWhiteSpace(directoryPath))
+                return false;
+
+            Directory.CreateDirectory(directoryPath);
+
+            string fullPath = Path.Combine(directoryPath, fileName);
+
+            File.WriteAllBytes(fullPath, imageBytes);
+
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     /// <summary>
     /// Waits until the specified file is available for exclusive access.
     /// </summary>
