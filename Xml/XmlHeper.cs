@@ -1,4 +1,5 @@
-﻿using System.Xml;
+﻿using System.Text;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace Utils.Xml;
@@ -14,6 +15,16 @@ public static class XmlHelper
         xml.Load(xmlPath);
 
         return xml;
+    }
+
+    public static XmlDocument ToXmlDocFromBase64(string base64String)
+    {
+        var xmlBytes = Convert.FromBase64String(base64String);
+        var xmlString = Encoding.UTF8.GetString(xmlBytes);
+
+        var doc = new XmlDocument();
+        doc.LoadXml(xmlString);
+        return doc;
     }
 
     public static XmlDocument ToXmlDoc(XDocument xDoc)
@@ -37,7 +48,7 @@ public static class XmlHelper
         {
             Indent = true,
             IndentChars = "  ",
-            Encoding = System.Text.Encoding.UTF8
+            Encoding = Encoding.UTF8
         };
         using var sw = new StringWriter();
         using var xw = XmlWriter.Create(sw, settings);
