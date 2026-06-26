@@ -13,6 +13,17 @@ namespace Utils.General;
 
 public static class Helper
 {
+    public static string Read(Assembly assembly, string fileName)
+    {
+        var resource = assembly.GetManifestResourceNames()
+            .Single(x => x.EndsWith(fileName.Trim(), StringComparison.OrdinalIgnoreCase));
+
+        using var stream = assembly.GetManifestResourceStream(resource)!;
+        using var reader = new StreamReader(stream);
+
+        return reader.ReadToEnd();
+    }
+
     public static byte[] GenerateQrImage(string qrValue)
     {
         using var qrGenerator = new QRCodeGenerator();
