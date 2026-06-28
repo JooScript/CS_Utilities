@@ -1,18 +1,23 @@
 ﻿using Microsoft.AspNetCore.Http;
+using QRCoder;
 using System.Data;
 using System.Globalization;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Xml;
-using System.Xml.Linq;
 using Utils.FileActions;
-using QRCoder;
 
 namespace Utils.General;
 
 public static class Helper
 {
+    public static bool IsSuccessStatusCode(this HttpStatusCode statusCode)
+    {
+        var code = (int)statusCode;
+        return code >= 200 && code < 300;
+    }
+
     public static string Read(Assembly assembly, string fileName)
     {
         var resource = assembly.GetManifestResourceNames()
