@@ -12,6 +12,9 @@ namespace Utils.General;
 
 public static class Helper
 {
+    public static Guid EmptyIfNull(this Guid? value)
+        => value.HasValue ? value.Value : Guid.Empty;
+
     public static bool IsSuccessStatusCode(this HttpStatusCode statusCode)
     {
         var code = (int)statusCode;
