@@ -5,6 +5,25 @@ namespace Utils.ConsoleDisplay;
 
 public static class ConsoleHelper
 {
+    public static int ReadNumber(string message, Predicate<int> validator)
+    {
+        while (true)
+        {
+            Console.Write(message);
+
+            if (int.TryParse(Console.ReadLine(), out int number) && validator(number))
+                return number;
+
+            Console.WriteLine("Please enter a valid number");
+        }
+    }
+
+    public static int ReadPositiveNumber(string message = "Enter a positive number")
+        => ReadNumber(message, number => number > 0);
+
+    public static int ReadNonNegativeNumber(string message = "Enter a non negative number")
+        => ReadNumber(message, number => number >= 0);
+
     #region Loaders
 
     public static void ShowSpinner(CancellationToken token, string word = "Loading")
@@ -57,7 +76,7 @@ public static class ConsoleHelper
         ConsoleColor color = success ? ConsoleColor.Green : ConsoleColor.Red;
         string icon = success ? "✓" : "✗";
         string defaultMessage = success ? "Done" : "Failed";
-        string message = $"  {icon} {(success ? customSuccessMessage ?? defaultMessage : customFailureMessage ?? defaultMessage)}";
+        string message = $"{icon} {(success ? customSuccessMessage ?? defaultMessage : customFailureMessage ?? defaultMessage)}";
 
         ConsoleColor originalColor = Console.ForegroundColor;
 
@@ -165,7 +184,7 @@ public static class ConsoleHelper
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine();
         Console.WriteLine(new string('─', 50));
-        Console.WriteLine($" {title.ToUpper()}");
+        Console.WriteLine($" {title}");
         Console.WriteLine(new string('─', 50));
         Console.ForegroundColor = originalColor;
     }
