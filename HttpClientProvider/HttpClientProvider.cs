@@ -2,31 +2,29 @@ using System.Net;
 
 namespace Utils.HttpClientProvider;
 
-/// <summary>
-/// Creates the single, shared HttpClient used by every service.
-/// One instance per process - never created per request.
-/// </summary>
 public static class HttpClientProvider
 {
-    public static HttpClient Create()
+    public static HttpClient Create(HttpClientOptions? options = null)
     {
+        options ??= new HttpClientOptions();
+
         var handler = new SocketsHttpHandler
         {
-            PooledConnectionLifetime = TimeSpan.FromMinutes(15),
-            PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
-            MaxConnectionsPerServer = 8,
-            AutomaticDecompression = DecompressionMethods.All,
-            AllowAutoRedirect = true
+            PooledConnectionLifetime = options.PooledConnectionLifetime,
+            PooledConnectionIdleTimeout = options.PooledConnectionIdleTimeout,
+            MaxConnectionsPerServer = options.MaxConnectionsPerServer,
+            AutomaticDecompression = options.AutomaticDecompression,
+            AllowAutoRedirect = options.AllowAutoRedirect
         };
 
         var client = new HttpClient(handler)
         {
-            Timeout = TimeSpan.FromSeconds(90)
+            Timeout = options.Timeout
         };
 
-        client.DefaultRequestHeaders.UserAgent.ParseAdd(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36");
-        client.DefaultRequestHeaders.AcceptLanguage.ParseAdd("en-US,en;q=0.9");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd(options.UserAgent);
+
+        client.DefaultRequestHeaders.AcceptLanguage.ParseAdd(options.AcceptLanguage);
 
         return client;
     }
