@@ -1,5 +1,3 @@
-using System.Net;
-
 namespace Utils.HttpClientProvider;
 
 public static class HttpClientProvider
