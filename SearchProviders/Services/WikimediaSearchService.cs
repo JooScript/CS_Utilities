@@ -2,8 +2,8 @@ using System.Net;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Utils.General;
-using Utils.SearchProvider.Models;
 using Utils.SearchProviders.Contracts;
+using Utils.SearchProviders.Models;
 
 namespace Utils.SearchProviders.Services;
 

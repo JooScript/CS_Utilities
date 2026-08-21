@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Utils.General;
-using Utils.SearchProvider.Models;
 using Utils.SearchProviders.Contracts;
+using Utils.SearchProviders.Models;
 
 namespace Utils.SearchProviders.Services;
 

@@ -1,4 +1,4 @@
-﻿using Utils.SearchProvider.Models;
+﻿using Utils.SearchProviders.Models;
 
 namespace Utils.SearchProviders.Contracts;
 

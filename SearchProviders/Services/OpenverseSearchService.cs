@@ -1,9 +1,9 @@
 using System.Text.Json;
 using Utils.General;
-using Utils.SearchProvider.Models;
 using Utils.SearchProviders.Contracts;
+using Utils.SearchProviders.Models;
 
-namespace ImageRecovery.Services;
+namespace Utils.SearchProviders.Services;
 
 /// <summary>
 /// Openverse image search API (https://openverse.org). A genuinely free, key-less

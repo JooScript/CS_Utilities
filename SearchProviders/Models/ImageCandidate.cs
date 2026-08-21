@@ -1,4 +1,4 @@
-﻿namespace Utils.SearchProvider.Models;
+﻿namespace Utils.SearchProviders.Models;
 
 public sealed class ImageCandidate
 {
