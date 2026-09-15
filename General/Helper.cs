@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Utils.FileActions;
 
@@ -14,6 +15,28 @@ public static class Helper
 {
     public static Guid EmptyIfNull(this Guid? value)
         => value.HasValue ? value.Value : Guid.Empty;
+
+    public static bool IsValidType(JsonElement value, Type type)
+    {
+        return type switch
+        {
+            var t when t == typeof(string) =>
+                value.ValueKind == JsonValueKind.String,
+
+            var t when t == typeof(int) =>
+                value.ValueKind == JsonValueKind.Number &&
+                value.TryGetInt32(out _),
+
+            var t when t == typeof(bool) =>
+                value.ValueKind is JsonValueKind.True or JsonValueKind.False,
+
+            var t when t.IsEnum =>
+                value.ValueKind == JsonValueKind.String &&
+                Enum.TryParse(t, value.GetString(), true, out _),
+
+            _ => false
+        };
+    }
 
     public static bool IsSuccessStatusCode(this HttpStatusCode statusCode)
     {
