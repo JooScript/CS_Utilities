@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json.Linq;
 using QRCoder;
 using System.Data;
 using System.Globalization;
@@ -28,6 +29,24 @@ public static class Helper
 
     public static Guid EmptyIfNull(this Guid? value)
         => value.HasValue ? value.Value : Guid.Empty;
+
+    public static bool IsValidJson(string? jsonString)
+    {
+        if (jsonString is null)
+            return false;
+
+        try
+        {
+            using var doc = JsonDocument.Parse(jsonString);
+            JsonElement element = doc.RootElement;
+
+            return true;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
 
     public static bool IsValidType(JsonElement value, Type type)
     {
