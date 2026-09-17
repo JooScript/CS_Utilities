@@ -14,74 +14,8 @@ namespace Utils.General;
 
 public static class Helper
 {
-    public static bool IsPatternValid(string pattern)
-    {
-        try
-        {
-            _ = new Regex(pattern);
-            return true;
-        }
-        catch (ArgumentException)
-        {
-            return false;
-        }
-    }
-
     public static Guid EmptyIfNull(this Guid? value)
         => value.HasValue ? value.Value : Guid.Empty;
-
-    public static bool IsValidJson(string? jsonString)
-    {
-        if (jsonString is null)
-            return false;
-
-        try
-        {
-            using var doc = JsonDocument.Parse(jsonString);
-            JsonElement element = doc.RootElement;
-
-            return true;
-        }
-        catch (JsonException)
-        {
-            return false;
-        }
-    }
-
-    public static bool IsValidType(JsonElement value, Type type)
-    {
-        return type switch
-        {
-            var t when t == typeof(string) =>
-                value.ValueKind == JsonValueKind.String || value.ValueKind == JsonValueKind.Null,
-
-            var t when t == typeof(int) =>
-                value.ValueKind == JsonValueKind.Number &&
-                value.TryGetInt32(out _),
-
-            var t when t == typeof(bool) =>
-                value.ValueKind is JsonValueKind.True or JsonValueKind.False,
-
-            var t when t.IsEnum =>
-            value.ValueKind switch
-            {
-                JsonValueKind.String =>
-                Enum.TryParse(t, value.GetString(), true, out _),
-
-                JsonValueKind.Number =>
-                Enum.TryParse(t, value.GetInt32().ToString(), out _),
-
-                _ => false
-            },
-            _ => false
-        };
-    }
-
-    public static bool IsSuccessStatusCode(this HttpStatusCode statusCode)
-    {
-        var code = (int)statusCode;
-        return code >= 200 && code < 300;
-    }
 
     public static string Read(Assembly assembly, string fileName)
     {

@@ -1,8 +1,11 @@
 ﻿using Humanizer;
-using Octokit.Internal;
+using System.Net;
+using System.Net.Mail;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Utils.FileActions;
 using Utils.General;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Utils.Validate;
 
@@ -45,6 +48,65 @@ public static class ValidationHelper
 
         return false;
     }
+
+    public static bool IsValidJson(string? jsonString)
+    {
+        if (jsonString is null)
+            return false;
+
+        try
+        {
+            using var doc = JsonDocument.Parse(jsonString);
+            JsonElement element = doc.RootElement;
+
+            return true;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    public static bool IsValidType(JsonElement value, Type type)
+    {
+        return type switch
+        {
+            var t when t == typeof(string) =>
+                value.ValueKind == JsonValueKind.String || value.ValueKind == JsonValueKind.Null,
+
+            var t when t == typeof(int) =>
+                value.ValueKind == JsonValueKind.Number &&
+                value.TryGetInt32(out _),
+
+            var t when t == typeof(bool) =>
+                value.ValueKind is JsonValueKind.True or JsonValueKind.False,
+
+            var t when t.IsEnum =>
+            value.ValueKind switch
+            {
+                JsonValueKind.String =>
+                Enum.TryParse(t, value.GetString(), true, out _),
+
+                JsonValueKind.Number =>
+                Enum.TryParse(t, value.GetInt32().ToString(), out _),
+
+                _ => false
+            },
+            _ => false
+        };
+    }
+
+    public static bool IsSuccessStatusCode(this HttpStatusCode statusCode)
+    {
+        var code = (int)statusCode;
+        return code >= 200 && code < 300;
+    }
+
+    public static bool IsValidUrl(string text)
+        => Uri.TryCreate(text, UriKind.Absolute, out var uri) && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
+
+    public static bool IsValidPhone(string text)
+        => Regex.IsMatch(text, @"^\+?[0-9\s\-\(\)]{7,20}$");
 
     /// <summary>
     /// Validates an age value with optional range constraints
@@ -144,12 +206,23 @@ public static class ValidationHelper
     public static bool IsValidEmail(string email)
     {
         if (string.IsNullOrWhiteSpace(email))
+            return false;
+
+        var pattern = @"^[a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$";
+        return Regex.IsMatch(email, pattern) && MailAddress.TryCreate(email, out _);
+    }
+
+    public static bool IsPatternValid(string pattern)
+    {
+        try
+        {
+            _ = new Regex(pattern);
+            return true;
+        }
+        catch (ArgumentException)
         {
             return false;
         }
-
-        var pattern = @"^[a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$";
-        return Regex.IsMatch(email, pattern);
     }
 
     public static bool IsValidInteger(string Number)
