@@ -13,6 +13,19 @@ namespace Utils.General;
 
 public static class Helper
 {
+    public static bool IsPatternValid(string pattern)
+    {
+        try
+        {
+            _ = new Regex(pattern);
+            return true;
+        }
+        catch (ArgumentException)
+        {
+            return false;
+        }
+    }
+
     public static Guid EmptyIfNull(this Guid? value)
         => value.HasValue ? value.Value : Guid.Empty;
 
@@ -21,7 +34,7 @@ public static class Helper
         return type switch
         {
             var t when t == typeof(string) =>
-                value.ValueKind == JsonValueKind.String,
+                value.ValueKind == JsonValueKind.String || value.ValueKind == JsonValueKind.Null,
 
             var t when t == typeof(int) =>
                 value.ValueKind == JsonValueKind.Number &&
@@ -31,9 +44,16 @@ public static class Helper
                 value.ValueKind is JsonValueKind.True or JsonValueKind.False,
 
             var t when t.IsEnum =>
-                value.ValueKind == JsonValueKind.String &&
+            value.ValueKind switch
+            {
+                JsonValueKind.String =>
                 Enum.TryParse(t, value.GetString(), true, out _),
 
+                JsonValueKind.Number =>
+                Enum.TryParse(t, value.GetInt32().ToString(), out _),
+
+                _ => false
+            },
             _ => false
         };
     }
