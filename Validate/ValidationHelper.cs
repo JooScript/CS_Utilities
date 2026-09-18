@@ -104,8 +104,7 @@ public static class ValidationHelper
                 value.ValueKind == JsonValueKind.String || value.ValueKind == JsonValueKind.Null,
 
             var t when t == typeof(int) =>
-                value.ValueKind == JsonValueKind.Number &&
-                value.TryGetInt32(out _),
+                value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out _),
 
             var t when t == typeof(bool) =>
                 value.ValueKind is JsonValueKind.True or JsonValueKind.False,
