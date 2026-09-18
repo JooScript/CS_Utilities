@@ -64,7 +64,17 @@ public static class ValueCoercionHelper
         }
 
         string? text = AsString(value);
-        return bool.TryParse(text, out result) || int.TryParse(text, out int num) && (result = num != 0);
+
+        if (bool.TryParse(text, out result))
+            return true;
+
+        if (int.TryParse(text, out int num))
+        {
+            result = num != 0;
+            return true;
+        }
+
+        return false;
     }
 
     public static bool AsInteger(object? value, out int result)
