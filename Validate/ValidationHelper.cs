@@ -98,19 +98,72 @@ public static class ValidationHelper
 
     public static bool IsValidType(JsonElement value, Type type)
     {
+        var underlyingType = Nullable.GetUnderlyingType(type);
+
+        if (underlyingType is not null)
+            return value.ValueKind == JsonValueKind.Null || IsValidType(value, underlyingType);
+
         return type switch
         {
             var t when t == typeof(string) =>
-                value.ValueKind == JsonValueKind.String || value.ValueKind == JsonValueKind.Null,
+                value.ValueKind is JsonValueKind.String or JsonValueKind.Null,
+
+            var t when t == typeof(char) =>
+                value.ValueKind == JsonValueKind.String && value.GetString() is { Length: 1 },
+
+            var t when t == typeof(byte) =>
+                value.ValueKind == JsonValueKind.Number && value.TryGetByte(out _),
+
+            var t when t == typeof(short) =>
+                value.ValueKind == JsonValueKind.Number && value.TryGetInt16(out _),
 
             var t when t == typeof(int) =>
                 value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out _),
 
+            var t when t == typeof(long) =>
+                value.ValueKind == JsonValueKind.Number && value.TryGetInt64(out _),
+
+            var t when t == typeof(sbyte) =>
+                value.ValueKind == JsonValueKind.Number && value.TryGetSByte(out _),
+
+            var t when t == typeof(ushort) =>
+                value.ValueKind == JsonValueKind.Number && value.TryGetUInt16(out _),
+
+            var t when t == typeof(uint) =>
+                value.ValueKind == JsonValueKind.Number && value.TryGetUInt32(out _),
+
+            var t when t == typeof(ulong) =>
+                value.ValueKind == JsonValueKind.Number && value.TryGetUInt64(out _),
+
+            var t when t == typeof(float) =>
+                value.ValueKind == JsonValueKind.Number && value.TryGetSingle(out _),
+
+            var t when t == typeof(double) =>
+                value.ValueKind == JsonValueKind.Number && value.TryGetDouble(out _),
+
+            var t when t == typeof(decimal) =>
+                value.ValueKind == JsonValueKind.Number && value.TryGetDecimal(out _),
+
             var t when t == typeof(bool) =>
                 value.ValueKind is JsonValueKind.True or JsonValueKind.False,
 
+            var t when t == typeof(Guid) =>
+                value.ValueKind == JsonValueKind.String && value.TryGetGuid(out _),
+
+            var t when t == typeof(DateTime) =>
+                value.ValueKind == JsonValueKind.String && value.TryGetDateTime(out _),
+
+            var t when t == typeof(DateTimeOffset) =>
+                value.ValueKind == JsonValueKind.String && value.TryGetDateTimeOffset(out _),
+
+            var t when t == typeof(DateOnly) =>
+                value.ValueKind == JsonValueKind.String && value.TryGetDateTime(out _),
+
+            var t when t == typeof(TimeOnly) =>
+                value.ValueKind == JsonValueKind.String && value.TryGetDateTime(out _),
+
             var t when t.IsEnum =>
-            IsEnum(value, t),
+                IsEnum(value, t),
 
             _ => false
         };
