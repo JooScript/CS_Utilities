@@ -1,4 +1,5 @@
 ﻿using Humanizer;
+using Newtonsoft.Json.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Text.Json;
@@ -45,6 +46,34 @@ public static class ValidationHelper
                 FileHelper.WarnLogger($"Failed to connect to {url}. Trying next URL...");
             }
         }
+
+        return false;
+    }
+
+    public static bool IsEnum<TEnum>(string value) where TEnum : struct, Enum
+    {
+        if (Enum.TryParse<TEnum>(value, true, out var stringResult))
+            return true;
+
+        if (IsValidInteger(value) && int.TryParse(value, out int intValue) && Enum.IsDefined(typeof(TEnum), intValue))
+            return true;
+
+        return false;
+    }
+
+    public static bool IsEnum<TEnum>(JsonElement value) where TEnum : struct, Enum
+    {
+        if (value.ValueKind == JsonValueKind.String &&
+            Enum.TryParse<TEnum>(
+                value.GetString(),
+                true,
+                out var stringResult))
+            return true;
+
+        if (value.ValueKind == JsonValueKind.Number &&
+            value.TryGetInt32(out int intValue) &&
+            Enum.IsDefined(typeof(TEnum), intValue))
+            return true;
 
         return false;
     }
