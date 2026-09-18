@@ -50,32 +50,32 @@ public static class ValidationHelper
         return false;
     }
 
-    public static bool IsEnum<TEnum>(string value) where TEnum : struct, Enum
+    public static bool IsEnum<TEnum>(string value)
+        where TEnum : struct, Enum
+        => (Enum.TryParse<TEnum>(value, true, out var stringResult)) ||
+            (int.TryParse(value, out int intValue) && Enum.IsDefined(typeof(TEnum), intValue));
+
+    public static bool IsEnum<TEnum>(JsonElement value)
+        where TEnum : struct, Enum
+        => (value.ValueKind == JsonValueKind.String && Enum.TryParse<TEnum>(value.GetString(), true, out var _)) ||
+        (value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out int intValue) && Enum.IsDefined(typeof(TEnum), intValue));
+
+    public static bool IsEnum(JsonElement value, Type enumType)
     {
-        if (Enum.TryParse<TEnum>(value, true, out var stringResult))
-            return true;
+        if (!enumType.IsEnum)
+            return false;
 
-        if (IsValidInteger(value) && int.TryParse(value, out int intValue) && Enum.IsDefined(typeof(TEnum), intValue))
-            return true;
+        return value.ValueKind switch
+        {
+            JsonValueKind.String =>
+                Enum.TryParse(enumType, value.GetString(), true, out _),
 
-        return false;
-    }
+            JsonValueKind.Number =>
+                value.TryGetInt32(out var number) &&
+                Enum.IsDefined(enumType, number),
 
-    public static bool IsEnum<TEnum>(JsonElement value) where TEnum : struct, Enum
-    {
-        if (value.ValueKind == JsonValueKind.String &&
-            Enum.TryParse<TEnum>(
-                value.GetString(),
-                true,
-                out var stringResult))
-            return true;
-
-        if (value.ValueKind == JsonValueKind.Number &&
-            value.TryGetInt32(out int intValue) &&
-            Enum.IsDefined(typeof(TEnum), intValue))
-            return true;
-
-        return false;
+            _ => false
+        };
     }
 
     public static bool IsValidJson(string? jsonString)
@@ -110,16 +110,8 @@ public static class ValidationHelper
                 value.ValueKind is JsonValueKind.True or JsonValueKind.False,
 
             var t when t.IsEnum =>
-            value.ValueKind switch
-            {
-                JsonValueKind.String =>
-                Enum.TryParse(t, value.GetString(), true, out _),
+            IsEnum(value, t),
 
-                JsonValueKind.Number =>
-                Enum.TryParse(t, value.GetInt32().ToString(), out _),
-
-                _ => false
-            },
             _ => false
         };
     }
