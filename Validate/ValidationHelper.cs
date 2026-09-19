@@ -80,7 +80,7 @@ public static class ValidationHelper
 
     public static bool IsValidJson(string? jsonString)
     {
-        if (jsonString is null)
+        if (string.IsNullOrWhiteSpace(jsonString))
             return false;
 
         try
