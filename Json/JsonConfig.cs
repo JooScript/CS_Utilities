@@ -62,6 +62,28 @@ public class JsonConfig
             return defaultValue;
     }
 
+    public long GetLong(string key, long defaultValue)
+    {
+        if (_values is null)
+            return defaultValue;
+
+        if (!_values.TryGetValue(key, out JsonElement element))
+            return defaultValue;
+
+        long value = 0;
+
+        if (element.ValueKind == JsonValueKind.Number)
+            if (element.TryGetInt64(out value))
+                return value;
+            else
+                return defaultValue;
+
+        if (long.TryParse(element.ToString(), out value))
+            return value;
+        else
+            return defaultValue;
+    }
+
     public decimal GetDecimal(string key, decimal defaultValue)
     {
         if (_values is null)
