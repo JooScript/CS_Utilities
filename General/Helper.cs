@@ -14,6 +14,9 @@ namespace Utils.General;
 
 public static class Helper
 {
+    public static bool HasDuplicateValues(IEnumerable<string> values)
+        => values.Count() != values.Distinct(StringComparer.OrdinalIgnoreCase).Count();
+
     public static Guid EmptyIfNull(this Guid? value)
         => value.HasValue ? value.Value : Guid.Empty;
 
