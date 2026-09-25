@@ -1,12 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json.Linq;
 using QRCoder;
 using System.Data;
 using System.Globalization;
-using System.Net;
 using System.Reflection;
 using System.Text;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using Utils.FileActions;
 
@@ -14,6 +11,12 @@ namespace Utils.General;
 
 public static class Helper
 {
+    public static decimal ToMajorCurrency(this int minorCurrency)
+        => minorCurrency / 100m;
+
+    public static int ToMinorCurrency(this decimal majorCurrency)
+        => (int)majorCurrency * 100;
+
     public static bool HasDuplicateValues(IEnumerable<string> values)
         => values.Count() != values.Distinct(StringComparer.OrdinalIgnoreCase).Count();
 
