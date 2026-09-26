@@ -15,7 +15,7 @@ public static class Helper
         => minorCurrency / 100m;
 
     public static int ToMinorCurrency(this decimal majorCurrency)
-        => (int)majorCurrency * 100;
+        => (int)(majorCurrency * 100);
 
     public static bool HasDuplicateValues(IEnumerable<string> values)
         => values.Count() != values.Distinct(StringComparer.OrdinalIgnoreCase).Count();
