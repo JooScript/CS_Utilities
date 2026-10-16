@@ -23,13 +23,12 @@ public static class RetryPolicy
             catch (Exception ex)
             {
                 attempt++;
+
                 if (attempt > maxRetries)
-                {
-                    throw new InvalidOperationException(
-                        $"Operation failed after {maxRetries} retries: {ex.Message}", ex);
-                }
+                    throw new InvalidOperationException($"Operation failed after {maxRetries} retries: {ex.Message}", ex);
 
                 var delay = baseDelay * Math.Pow(2, attempt - 1);
+
                 delay += TimeSpan.FromMilliseconds(Random.Shared.Next(0, 500));
 
                 try
@@ -44,6 +43,4 @@ public static class RetryPolicy
         }
     }
 
-    public static Task<T> ExecuteAsync<T>(int maxRetries, TimeSpan baseDelay, Func<Task<T>> action) =>
-        ExecuteAsync(maxRetries, baseDelay, action, CancellationToken.None);
 }
