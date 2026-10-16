@@ -2,6 +2,7 @@
 using QRCoder;
 using System.Data;
 using System.Globalization;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -11,6 +12,9 @@ namespace Utils.General;
 
 public static class Helper
 {
+    public static bool IsServerError(HttpStatusCode statusCode)
+        => (int)statusCode is >= 500 and <= 599;
+
     public static decimal ToMajorCurrency(this int minorCurrency)
         => minorCurrency / 100m;
 
