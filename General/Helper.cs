@@ -27,6 +27,12 @@ public static class Helper
     public static Guid EmptyIfNull(this Guid? value)
         => value.HasValue ? value.Value : Guid.Empty;
 
+    public static bool IsNullOrEmpty(this Guid? value)
+        => !value.HasValue || value.Value == Guid.Empty;
+
+    public static bool IsEmpty(this Guid value)
+        => value == Guid.Empty;
+
     public static string Read(Assembly assembly, string fileName)
     {
         var resource = assembly.GetManifestResourceNames()
