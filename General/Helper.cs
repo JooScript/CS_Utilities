@@ -12,7 +12,7 @@ namespace Utils.General;
 
 public static class Helper
 {
-    public static bool IsServerError(HttpStatusCode statusCode)
+    public static bool IsServerError(this HttpStatusCode statusCode)
         => (int)statusCode is >= 500 and <= 599;
 
     public static decimal ToMajorCurrency(this int minorCurrency)
