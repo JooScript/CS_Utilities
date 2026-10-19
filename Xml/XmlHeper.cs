@@ -6,7 +6,7 @@ namespace Utils.Xml;
 
 public static class XmlHelper
 {
-    public static XmlDocument ToXmlDoc(string xmlPath)
+    public static XmlDocument ToXmlDocFromPath(string xmlPath)
     {
         if (!File.Exists(xmlPath))
             throw new Exception("Invoice XML not found");
@@ -22,6 +22,11 @@ public static class XmlHelper
         var xmlBytes = Convert.FromBase64String(base64String);
         var xmlString = Encoding.UTF8.GetString(xmlBytes);
 
+        return ToXmlDocFromString(xmlString);
+    }
+
+    public static XmlDocument ToXmlDocFromString(string xmlString)
+    {
         var doc = new XmlDocument();
         doc.LoadXml(xmlString);
         return doc;
