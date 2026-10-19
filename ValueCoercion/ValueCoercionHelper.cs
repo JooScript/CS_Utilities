@@ -6,6 +6,27 @@ namespace Utils.ValueCoercion;
 
 public static class ValueCoercionHelper
 {
+    public static bool TryParse<T>(string? value, out T result)
+    {
+        result = default!;
+
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
+
+        try
+        {
+            result = (T)Convert.ChangeType(value, typeof(T));
+            return true;
+        }
+        catch (Exception ex) when (
+            ex is FormatException or
+            InvalidCastException or
+            OverflowException)
+        {
+            return false;
+        }
+    }
+
     /// <summary>
     /// True when the value is null, a JSON null, an empty string, or an empty array.
     /// </summary>
