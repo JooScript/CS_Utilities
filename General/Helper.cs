@@ -12,6 +12,9 @@ namespace Utils.General;
 
 public static class Helper
 {
+    public static int GetSizeInBytes(string value)
+        => Encoding.UTF8.GetByteCount(value);
+
     public static bool IsServerError(this HttpStatusCode statusCode)
         => (int)statusCode is >= 500 and <= 599;
 
