@@ -58,7 +58,7 @@ public class XmlHelperTests
     [Fact]
     public void ToXmlDocFromPath_WhenMissing_Throws()
     {
-        var path = Path.Combine(Path.GetTempPath(), $"fatora-missing-{Guid.NewGuid():N}.xml");
+        var path = Path.Combine(Path.GetTempPath(), $"Sanad-missing-{Guid.NewGuid():N}.xml");
 
         var exception = Assert.Throws<Exception>(() => XmlHelper.ToXmlDocFromPath(path));
 
@@ -68,7 +68,7 @@ public class XmlHelperTests
     [Fact]
     public void ToXmlDocFromPath_WhenExists_LoadsXml()
     {
-        var path = Path.Combine(Path.GetTempPath(), $"fatora-xml-{Guid.NewGuid():N}.xml");
+        var path = Path.Combine(Path.GetTempPath(), $"Sanad-xml-{Guid.NewGuid():N}.xml");
 
         try
         {

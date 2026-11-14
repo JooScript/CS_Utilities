@@ -42,7 +42,7 @@ public class SecurityHelperTests
     [Fact]
     public void Encrypt_ThenDecrypt_ReturnsOriginalText()
     {
-        const string plainText = "Hello, Fatora!";
+        const string plainText = "Hello, Sanad!";
         const string key = "secret-key";
 
         var cipher = SecurityHelper.Encrypt(plainText, key);

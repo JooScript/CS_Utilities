@@ -55,9 +55,9 @@ public class JsonHelperTests
     {
         var node = JsonHelper.CreateNewJsonObject();
 
-        JsonHelper.SetValue(node, "ApplicationSettings.AppName", "Fatora");
+        JsonHelper.SetValue(node, "ApplicationSettings.AppName", "Sanad");
 
-        Assert.Equal("Fatora", JsonHelper.GetValue<string>(node, "ApplicationSettings.AppName"));
+        Assert.Equal("Sanad", JsonHelper.GetValue<string>(node, "ApplicationSettings.AppName"));
     }
 
     [Fact]
@@ -124,10 +124,10 @@ public class JsonHelperTests
     {
         var node = JsonHelper.InitializeDefaultConfig();
 
-        JsonHelper.SetApplicationSetting(node, "AppName", "Fatora");
+        JsonHelper.SetApplicationSetting(node, "AppName", "Sanad");
         var result = JsonHelper.GetApplicationSetting(node, "AppName");
 
-        Assert.Equal("Fatora", result);
+        Assert.Equal("Sanad", result);
     }
 
     [Fact]
@@ -177,7 +177,7 @@ public class JsonHelperTests
     [Fact]
     public void WriteJsonFile_ThenReadJsonFile_RoundTrips()
     {
-        var path = Path.Combine(Path.GetTempPath(), $"fatora-json-{Guid.NewGuid():N}.json");
+        var path = Path.Combine(Path.GetTempPath(), $"Sanad-json-{Guid.NewGuid():N}.json");
         var node = JsonHelper.InitializeDefaultConfig();
 
         try
@@ -199,7 +199,7 @@ public class JsonHelperTests
     [Fact]
     public void ReadJsonFile_WhenMissing_Throws()
     {
-        var path = Path.Combine(Path.GetTempPath(), $"fatora-missing-{Guid.NewGuid():N}.json");
+        var path = Path.Combine(Path.GetTempPath(), $"Sanad-missing-{Guid.NewGuid():N}.json");
 
         Assert.Throws<FileNotFoundException>(() => JsonHelper.ReadJsonFile(path));
     }
