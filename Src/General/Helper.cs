@@ -12,6 +12,9 @@ namespace Utils.General;
 
 public static class Helper
 {
+    public static string RemoveWhiteSpaces(this string value)
+        => Regex.Replace(value, @"\s+", string.Empty);
+
     public static int GetSizeInBytes(string value)
         => Encoding.UTF8.GetByteCount(value);
 
